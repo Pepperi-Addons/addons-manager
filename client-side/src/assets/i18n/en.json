@@ -22,7 +22,7 @@
 	"UninstallAddon_Body": "Please approve uninstalling the addon.",
 	"UpgradeAddon_Header": "Upgrade Addon",
 	"UpgradeAddon_Body": "Please approve upgrading the addon to the latest version.",
-	"AddonInstallation_Progress": "Operation in Progress...",
+    "AddonInstallation_Progress": "Operation in Progress... <br>Please wait until the operation is complete to prevent errors<br><br><br><br>",
 	"Addon_SuccessfulOperation": "Operation completed successfully.",
 	"Addon_FailedOperation": "Operation completed with errors: <br><br>",
 	"AddonInstallation_Header": "Installation in progress",

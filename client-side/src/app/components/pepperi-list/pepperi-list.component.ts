@@ -697,7 +697,7 @@ export class PepperiListContComponent {
         type:  'custom',
         showClose: false
     });
-    const dialogRef = this.dialog.openDefaultDialog(pollData, {minWidth: 526});
+    const dialogRef = this.dialog.openDefaultDialog(pollData, {width: '526px', height: '234px'});
     const interval = window.setInterval(() => {
         this.pluginService.getExecutionLog(executionUUID, logRes => {
             if (dialogRef){
@@ -709,8 +709,8 @@ export class PepperiListContComponent {
             }
           if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress') {
             const content = logRes.Status.ID
-              ? this.translate.instant('Addon_SuccessfulOperation')
-              : this.translate.instant('Addon_FailedOperation') + logRes.AuditInfo.ErrorMessage;
+              ? `${this.translate.instant('Addon_SuccessfulOperation')}<br><br><br><br>`
+              : `${this.translate.instant('Addon_FailedOperation')}<span>${logRes.AuditInfo.ErrorMessage}</span><br><br>`;
             const actionButton = {
               title: this.translate.instant('Close'),
               callback: null,
