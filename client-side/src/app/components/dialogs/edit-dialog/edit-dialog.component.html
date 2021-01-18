@@ -1,0 +1,21 @@
+<div id="edit-dialog" class="dialog">
+    <pep-dialog [title]="'AddonsManager_AutomaticUpgrade' | translate">
+        <ng-container pep-dialog-content>
+            <div style="padding: 0.5rem;">
+                <p>{{'AutomaticUpgrade_Body' | translate}}</p>
+                 <pep-checkbox
+                    [value]="outputData.automaticUpgrade"
+                    [label]="'AutomaticUpgrade' | translate"
+                    (valueChange)="outputData.automaticUpgrade = $event.value">
+                </pep-checkbox>
+            </div>
+        </ng-container>
+        <ng-container pep-dialog-actions class="pepperi-border-top">
+            <pep-button [value]="'Confirm' | translate" [mat-dialog-close]="outputData"></pep-button>
+        </ng-container>
+    </pep-dialog>
+</div>
+
+
+
+

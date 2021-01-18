@@ -1,0 +1,39 @@
+<div class="plugin-page-container">
+
+    <div class="header-content">
+        <div class="content pep-border-bottom">
+            <div class="left-container spacing-element-negative pull-left flip">
+                <div class="spacing-element title">
+                    {{ 'AddonManager' | translate }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content" *ngIf="installing == false">
+        <div class="content">
+            <mat-tab-group
+            #tabGroup
+            (selectedTabChange)="tabClick($event)"
+            animationDuration="0ms"
+            class="fixed-header"
+            >
+                <mat-tab label="{{ 'AddonManager_Addons_List' | translate}}">
+                    <ng-template matTabContent>
+                        <pep-list-cont (setAddonList)="setAddonList($event)" [addonsList]="addonsList"
+                        [apiEndpoint]="'addons'" [addonData]="addonData" (refreshSettingsTree)="refreshSettingsTree($event)"
+                        [isSupportUser]="route?.queryParams?.support_user"></pep-list-cont>
+                    </ng-template>
+                 </mat-tab>
+
+                <mat-tab label="{{ 'Permissions' | translate}}">
+                    <ng-template matTabContent>
+                        <pep-list-cont [apiEndpoint]="'permissions'" [addonsList]="addonsList" [addonData]="addonData"></pep-list-cont>
+                    </ng-template>
+                </mat-tab>
+            </mat-tab-group>
+        </div>
+    </div>
+    <router-outlet></router-outlet>
+</div>
+

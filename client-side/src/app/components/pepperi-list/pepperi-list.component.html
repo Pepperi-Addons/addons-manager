@@ -1,0 +1,31 @@
+<div  class="listContainer">
+    <div class="rowHeader spacing-element-negative">
+        <p class="spacing-element body-sm pull-left flip" [innerHtml]="(apiEndpoint === 'addons' ? 'AddonManager_addonSecTitle' : 'AddonManager_permissionSecTitle') | translate"></p>
+    </div>
+    <div class="rowBody">
+        <pep-top-bar [title] ="topBarTitle | translate" [inline]="true">
+            <pep-list-actions (actionClick)="onActionClicked($event)" [actions]="listActions" [sizeType]="'md'"></pep-list-actions>
+            <pep-list-chooser *ngIf="apiEndpoint === 'permissions'" [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
+            <div header-end-content>
+                <pep-button *ngIf="apiEndpoint === 'permissions'" [iconName]="'number_plus'" [classNames]="'spacing-element strong color-main lg'" (click)="openPermissionsDialog()">
+                </pep-button>
+            </div>
+        </pep-top-bar>
+        <div id="mainContent" class="main-content row">
+            <div class="main-layout pull-right flip">
+                <div #pepperiListCont class="content" style="height: calc(100vh - 355px); overflow-y: auto;">
+                    <pep-list #pepList
+                    [supportSorting]="false"
+                    [supportResizing]="false"
+                    [selectionTypeForActions]="'single'"
+                    [noDataFoundMsg]="noDataMsg | translate"
+                    [parentScroll]="pepperiListCont"
+                    (fieldClick)="onCustomizeFieldClick($event)"
+                    [isReport]="true"
+                    (selectedItemsChange)="selectedRowsChanged($event)" >
+                    </pep-list>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
