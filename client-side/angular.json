@@ -55,6 +55,12 @@
             }
           },
           "configurations": {
+            "Standalone": {
+
+            },
+            "SingleSpa": {
+
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -92,10 +98,10 @@
           },
           "configurations": {
             "Standalone": {
-                
+
             },
             "SingleSpa": {
-                
+
             },
             "production": {
               "browserTarget": "client-side:build:production"
@@ -143,6 +149,12 @@
             "devServerTarget": "client-side:serve"
           },
           "configurations": {
+            "Standalone": {
+
+            },
+            "SingleSpa": {
+
+            },
             "production": {
               "devServerTarget": "client-side:serve:production"
             }

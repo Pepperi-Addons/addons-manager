@@ -13,6 +13,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "compile": "tsc",
         "build": "rollup -c rollup.config.js",
+        "watch": "rollup -c rollup.config.js --watch",
         "start": "tsc -w app.local.ts"
     },
     "devDependencies": {

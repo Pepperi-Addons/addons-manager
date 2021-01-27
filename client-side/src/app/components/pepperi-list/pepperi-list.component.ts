@@ -390,9 +390,10 @@ export class PepperiListContComponent {
 
           };
         });
+        const config = this.dialog.getDialogConfig({}, 'regular');
         const content = { installedAddons: this.installedAddonsWithEditor };
         const data = new PepDialogData( {content});
-        const dialogRef = this.dialog.openDialog(PermissionsDialogComponent, data);
+        const dialogRef = this.dialog.openDialog(PermissionsDialogComponent, data, config);
         dialogRef.afterClosed().subscribe(dialogData => {
             if  (dialogData) {
               const fieldID = dialogData.selectedAddon.Key + ';' + dialogData.selectedAddon.Value;
@@ -697,7 +698,7 @@ export class PepperiListContComponent {
         type:  'custom',
         showClose: false
     });
-    const dialogRef = this.dialog.openDefaultDialog(pollData, {width: '526px', height: '234px'});
+    const dialogRef = this.dialog.openDefaultDialog(pollData);
     const interval = window.setInterval(() => {
         this.pluginService.getExecutionLog(executionUUID, logRes => {
             if (dialogRef){
@@ -754,7 +755,8 @@ export class PepperiListContComponent {
         versions => {
 
             if (versions && versions.length) {
-                const sortedVersions = versions.sort((a, b) => a.CreationDateTime > b.CreationDateTime ? 1 : -1);
+                const filterdVersions = versions.filter( version => version.Available);
+                const sortedVersions = filterdVersions.sort((a, b) => a.CreationDateTime > b.CreationDateTime ? 1 : -1);
                 let options = [];
                 sortedVersions.forEach( option => {
                     const Value = `${option?.Version}${option?.Phased ? ' | Phased' : ' | Available'}${option?.Description ? ' | ' + option?.Description : ''}`;
@@ -772,10 +774,10 @@ export class PepperiListContComponent {
 
                       const versionToChange = versions.find(version => version.Version === dialogResult.version);
                       const currentVersion = versions.find(version => version.Version === currentVersionId);
-                      const actionName = versionToChange && currentVersion &&
-                                        Date.parse(versionToChange.CreationDateTime) < Date.parse(currentVersion.CreationDateTime)
-                                    ? 'downgrade' : 'upgrade';
-                      if (versionToChange) {
+                      const actionName = versionToChange && currentVersion ?
+                                        (Date.parse(versionToChange.CreationDateTime) < Date.parse(currentVersion.CreationDateTime)
+                                    ? 'downgrade' : 'upgrade') : null;
+                      if (versionToChange && actionName) {
                         this.pluginService.editAddon(actionName, rowData.Fields[0].AdditionalValue, res => {
                             this.pollExecution(
                                 this.translate.instant('AddonsManager_ChangeVersion_Header'),
@@ -783,13 +785,20 @@ export class PepperiListContComponent {
                                 res.ExcecutionUUID || res.ExecutionUUID );
                           }, null, dialogResult.version);
                       }
+                      else {
+                          const content = 'Installed addon is corrupted, please contact support.';
+                          const data = new PepDialogData({content});
+                          const config = this.dialog.getDialogConfig();
+                          this.dialog.openDefaultDialog(data, config);
+                      }
 
 
                 })
             } else {
               const content = 'Versions not available';
               const data = new PepDialogData({content});
-              this.dialog.openDefaultDialog(data);
+              const config = this.dialog.getDialogConfig();
+              this.dialog.openDefaultDialog(data, config);
             }
     }, null);
 

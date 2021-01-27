@@ -6,17 +6,23 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:client && npm run build:server",
+    "build:watch": "npm run watch-client && npm run watch-server",
     "init": "npm install && cd ./server-side && npm install && cd .. && cd ./client-side && npm install && cd ..",
     "client:addon": "cd client-side && ng serve --port 4400 --configuration SingleSpa && cd..",
     "client:standalone": "cd client-side && ng serve --port 4400 --configuration Standalone && cd..",
-    "build:client": "cd client-side && ng build --configuration SingleSpa && cd..",
+    "build:client": "cd ./client-side && npm run build-for-publish && cd..",
+    "watch-client": "cd ./client-side && npm run single-spa && cd..",
     "build:server": "cd ./server-side && npm run build && cd ..",
-    "publish-addon": "publish-addon"
+    "watch-server": "cd ./server-side && npm run watch && cd ..",
+    "publish-addon": "npm run build && publish-addon"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@pepperi-addons/scripts": "^1.0.27"
+    "-": "0.0.1",
+    "@pepperi-addons/scripts": "^1.0.27",
+    "concurrently": "^5.3.0",
+    "g": "^2.0.1"
   }
 }

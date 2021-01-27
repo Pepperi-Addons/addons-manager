@@ -4,9 +4,9 @@
     "scripts": {
         "ng": "ng",
         "build": "ng build --configuration SingleSpa",
-        "single-spa": "ng serve --port 4400 --configuration SingleSpa",
-        "standalone": "ng serve --port 4400 --configuration Standalone",
-        "build:single-spa": "ng build client-side --prod",
+        "single-spa": "ng build --watch --configuration SingleSpa",
+        "standalone": "ng serve  --port 4400 --configuration Standalone",
+        "build-for-publish": "ng build --prod",
         "serve:standalone": "ng serve",
         "serve:single-spa": "ng s --project client-side --disable-host-check --port 4400 --deploy-url http://localhost:4400/ --live-reload false",
         "assets-server": "http-server ./src/ -p 4300 -d --cors",

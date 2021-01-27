@@ -1,18 +1,9 @@
 import MyService from './my.service';
 import { Client, Request } from '@pepperi-addons/debug-server';
 import { InstalledAddon, Addon, AddonVersion } from '@pepperi-addons/papi-sdk';
-import config from '../addon.config.json';
-import _ from 'lodash';
-import { create } from 'domain';
-import { version } from 'process';
-// add functions here
 
 
-
-
-
-
-export async function import_maps(client: Client, req: Request) {
+export async function importmaps(client: Client, req: Request) {
  
   const service = new MyService(client);
   const installedAddons = await service.getInstalledAddons();
@@ -47,14 +38,6 @@ function getAddonLatestPhasedVersion(installedAddonVersions) {
   }, {});
 }
 
-
-
-
-
-
-
-
-
 // Returns a list of all addons
 export async function addons(client: Client, request: Request) {
     // client.addLogEntry("Info", "Started Get Addons Function");
@@ -87,7 +70,6 @@ export async function addons(client: Client, request: Request) {
     unionArray.sort((a, b) => (a.Addon.Name && b.Addon.Name && a.Addon.Name > b.Addon.Name) ? 1 : -1);
     return unionArray;
 }
-
 // Return a list of installed addons that needs update
 export async function updates(client: Client, request: Request) {
 
@@ -155,15 +137,5 @@ export async function addon_versions(client: Client, request: Request) {
   return addonVersions;
 }
 
-
-// this function will run on the 'api/foo' endpoint
-// the real function is runnning on another typescript file
-
-
-export async function foo(client: Client, request: Request) {
-    const service = new MyService(client);
-    const res = await service.getAddons();
-    return res;
-}
 
 

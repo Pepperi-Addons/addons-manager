@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { AddonsSearch } from './app.model';
-import { PepHttpService} from '@pepperi-addons/ngx-lib'
+import { PepHttpService, PepSessionService} from '@pepperi-addons/ngx-lib'
 
 
 @Injectable()
@@ -16,6 +16,7 @@ export class AppService {
 
     constructor(
         private http: PepHttpService,
+        private session: PepSessionService,
         // public userService: UserService,
         public dialog: MatDialog
     ) {
@@ -134,10 +135,10 @@ export class AppService {
         const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
         this.http.postPapiApiCall(url, searchObject).subscribe(res => successFunc(res), err => errorFunc(err));
 
-        // --- Work localhost
+        // // --- Work localhost
         // const url = `http://localhost:4400/api/${endpoint}`;
-        // this.http.post(url, searchObject, { headers: {Authorization: 'Bearer ' + this.userService.getUserToken() }}).subscribe(
-        //     res => successFunc(res), error => errorFunc(error), () => this.userService.setShowLoading(false)
+        // this.http.postHttpCall(url, searchObject).subscribe(
+        //     res => successFunc(res), error => errorFunc(error), () => {}
         // );
     }
 
@@ -145,16 +146,16 @@ export class AppService {
         // this.userService.setShowLoading(true);
         // const endpoint = searchObject.ListType === 'all' ? 'addons' : 'updates';
         // --- Work live in sandbox upload api.js file to plugin folder
-        const url = `/addons/api/${uuid}/api/addon_versions`;
-        this.http.getPapiApiCall(url).subscribe(res => successFunc(res), err => errorFunc(err));
+        // const url = `/addons/api/${uuid}/api/addon_versions`;
+        // this.http.getPapiApiCall(url).subscribe(res => successFunc(res), err => errorFunc(err));
 
         // --- Work localhost
-        // const url = `http://localhost:4400/api/addon_versions`;
-        // this.http.post(url, {UUID: uuid}, { 'headers': {'Authorization': 'Bearer ' + this.userService.getUserToken() }}).subscribe(
-        //     res => successFunc(res),
-        //     error => errorFunc(error),
-        //     () => this.userService.setShowLoading(false)
-        // );
+        const url = `http://localhost:4400/api/addon_versions`;
+        this.http.postHttpCall(url, {UUID: uuid}, { 'headers': {'Authorization': 'Bearer ' + this.session.getIdpToken() }}).subscribe(
+            res => successFunc(res),
+            error => errorFunc(error),
+            () => {}
+        );
 
     }
 

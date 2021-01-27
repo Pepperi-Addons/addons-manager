@@ -31,7 +31,6 @@ export class AppComponent  {
           this.addonData = props['addon'];
           this.route = props['route'] ?  props['route'] : activatedRoute.snapshot;
         });
-      debugger;
 
 
     }

@@ -67,7 +67,7 @@ class MyService {
 
     getAddonVersions(addonUUID): Promise<AddonVersion[]> {
       return this.papiClient.addons.versions.iter(
-          {where: `Available=1 AND AddonUUID='${addonUUID}'`}).toArray();
+          {where: `AddonUUID='${addonUUID}'`}).toArray();
     }
 
     getAddonVersion(version): Promise<AddonVersion> {
