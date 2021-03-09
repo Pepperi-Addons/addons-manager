@@ -47,5 +47,6 @@
     "AddonsManager_Title_Autoupgrade": "Auto Upgrade",
     "AutomaticUpgrade_Body": "Setting this as true will update the addon automatically",
     "EditorsProfiles_Body": "Write in JSON format the allowed profiles for your addon",
-    "AddonManager_Permissions_List": "Permissions for"
+	"AddonManager_Permissions_List": "Permissions for",
+	"LastUpgradeDateTime": "Last Update"
 }

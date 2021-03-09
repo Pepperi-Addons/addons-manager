@@ -55,6 +55,7 @@ export class InstalledAddon {
     SystemData?: SystemData;
     // CreationDate: string;
     // ModificationDate: string;
+    LastUpgradeDateTime?: string;
     AdditionalData: string;
     Hidden: string;
     LatestPhased?: any;

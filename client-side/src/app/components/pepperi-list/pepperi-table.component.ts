@@ -8,7 +8,6 @@ import { PepListComponent } from '@pepperi-addons/ngx-lib/list';
   template: `<div class="list-container" #listContainer>
   <pep-list
       [firstFieldAsLink]="false"
-      [isReport]="true"
       [supportSorting]="true"
       [supportResizing]="false"
       [selectionTypeForActions]="'single'"

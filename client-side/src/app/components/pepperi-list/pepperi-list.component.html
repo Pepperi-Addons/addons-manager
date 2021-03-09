@@ -15,13 +15,13 @@
             <div class="main-layout pull-right flip">
                 <div #pepperiListCont class="content" style="height: calc(100vh - 355px); overflow-y: auto;">
                     <pep-list #pepList
+                    [disabled]="true"
                     [supportSorting]="false"
                     [supportResizing]="false"
                     [selectionTypeForActions]="'single'"
                     [noDataFoundMsg]="noDataMsg | translate"
                     [parentScroll]="pepperiListCont"
                     (fieldClick)="onCustomizeFieldClick($event)"
-                    [isReport]="true"
                     (selectedItemsChange)="selectedRowsChanged($event)" >
                     </pep-list>
                 </div>

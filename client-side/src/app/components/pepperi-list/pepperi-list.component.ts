@@ -237,35 +237,31 @@ export class PepperiListContComponent {
         isLatestAvailable = additionalValue.LatestAvailable;
         isInstalled = additionalValue.Installed;
         hasVersions = additionalValue.HasVersions;
-        isAddonSystemType = rowData && rowData.Fields ? rowData.Fields
-          .filter( field => field.ApiName === 'Description')[0].AdditionalValue === 1 : false;
+        isAddonSystemType = rowData?.Fields ? rowData.Fields
+          .filter( field => field.ApiName === 'Description')[0].AdditionalValue === "1" : false;
       }
 
-      if (this.isSupportUser || this.enableAddonAutomaticUpgrade) {
-          action = new PepMenuItem({ key: 'Edit', text: this.translate.instant('Edit'),hidden: !isInstalled});
-          retVal.push(action);
-      }
+      action = new PepMenuItem({ key: 'Edit', text: this.translate.instant('Edit'),
+      hidden: !isInstalled || (!this.isSupportUser && !this.enableAddonAutomaticUpgrade)});
+      retVal.push(action);
+
       action = new PepMenuItem({ key: 'Install', text: this.translate.instant('Install'),
       hidden:  isInstalled });
       retVal.push(action);
 
       action = new PepMenuItem({ key: 'Uninstall', text: this.translate.instant('Uninstall'),
-             hidden: !(isInstalled && !isAddonSystemType)});
+             hidden: !isInstalled || isAddonSystemType});
       retVal.push(action);
 
       action = new PepMenuItem({ key: 'Upgrade', text: this.translate.instant('Upgrade'),
-             hidden: !(isInstalled && !isLatestPhased /*|| (isInstalled && !hasVersions)*/)});
+             hidden: (isLatestPhased || !isInstalled)});
       retVal.push(action);
 
-      if (this.isSupportUser) {
-        // action = new PepMenuItem('UpgradeLatest', this.translate.instant('UpgradeLatest'),
-        //       !(isInstalled || isLatestAvailable ));
-        // retVal.push(action);
-        action = new PepMenuItem({
-            key: 'ChangeVersion', text: this.translate.instant('AddonsManager_ChangeVersion_Header'),
-            hidden:  !isInstalled} );
-        retVal.push(action);
-      }
+      action = new PepMenuItem({
+          key: 'ChangeVersion', text: this.translate.instant('AddonsManager_ChangeVersion_Header'),
+          hidden:  !isInstalled || !this.isSupportUser} );
+      retVal.push(action);
+
     } else if (this.apiEndpoint === 'permissions') {
         let action: PepMenuItem;
         action = new PepMenuItem({key: 'DeletePermission',text: this.translate.instant('Delete'),hidden: false});
@@ -290,7 +286,7 @@ export class PepperiListContComponent {
 
       const tableData = new Array<PepRowData>();
       res.forEach((addon: InstalledAddon) => {
-            const userKeys = ['Name', 'Description', 'Version'];
+            const userKeys = ['Name', 'Description', 'Version', 'LastUpgradeDateTime'];
             const supportUserKeys = this.isSupportUser === 'true' ? ['Type', 'AutomaticUpgrade' ] : [];
             const allKeys = [ ...userKeys,  ...supportUserKeys];
             tableData.push(this.convertAddonToPepperiRowData(addon, allKeys));
@@ -384,20 +380,20 @@ export class PepperiListContComponent {
         }).map(addon => {
           const systemData = this.utilities.isJsonString(addon.SystemData) ? JSON.parse(addon.SystemData.toString()) : {};
           return {
-                Key: addon.Addon.UUID,
-                Value: addon.Addon.Name,
+                key: addon.Addon.UUID,
+                value: addon.Addon.Name,
                 Editors: systemData.Editors
 
           };
         });
-        const config = this.dialog.getDialogConfig({}, 'regular');
+        const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
         const content = { installedAddons: this.installedAddonsWithEditor };
         const data = new PepDialogData( {content});
         const dialogRef = this.dialog.openDialog(PermissionsDialogComponent, data, config);
         dialogRef.afterClosed().subscribe(dialogData => {
             if  (dialogData) {
-              const fieldID = dialogData.selectedAddon.Key + ';' + dialogData.selectedAddon.Value;
-              const Title =  dialogData.selectedAddon.Key + ';' +
+              const fieldID = dialogData.selectedAddon.key + ';' + dialogData.selectedAddon.value;
+              const Title =  dialogData.selectedAddon.key + ';' +
                              dialogData.selectedEditor.PackageName + ';' +
                              dialogData.selectedEditor.Description;
 
@@ -413,7 +409,8 @@ export class PepperiListContComponent {
                 const modalTitle = this.translate.instant('Alert');
                 const content = this.translate.instant('AddonManager_PermissionAlreadyExist');
                 const data2 = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
-                this.dialog.openDefaultDialog(data2);
+                const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+                this.dialog.openDefaultDialog(data2, config);
 
             }
             }
@@ -509,6 +506,7 @@ export class PepperiListContComponent {
                 dataRowField.Value =  addon.Addon[key] ? addon.Addon[key] : '';
                 break;
             case 'Version':
+                dataRowField.ColumnWidth = 15;
                 addon.LatestPhased = (addon.Addon.SystemData && addon.Addon.SystemData.indexOf('CurrentPhasedVersion') > -1) ?
                 this.isLatestPhased(addon) : true;
 
@@ -535,7 +533,14 @@ export class PepperiListContComponent {
                 dataRowField.Value = addon.AutomaticUpgrade ? "1" : "0";
                 dataRowField.ReadOnly = true;
                 dataRowField.Enabled = false;
+
                 break;
+            case 'LastUpgradeDateTime':
+                dataRowField.FieldType = FIELD_TYPE.DateAndTime;
+                dataRowField.ColumnWidth = 17;
+                // THIS IS A HACK! we don't support date formatting
+                // dataRowField.FormattedValue = addon.LastUpgradeDateTime ? (new Date(addon.LastUpgradeDateTime)).toLocaleString() : '';
+                break
             default:
                 dataRowField.FormattedValue = addon[key] ? addon[key].toString() : '';
                 break;
@@ -624,8 +629,8 @@ export class PepperiListContComponent {
           const title = this.translate.instant('Alert');
           const content = this.translate.instant('NotSupported');
           const data = new PepDialogData({title, content});
-
-          this.dialog.openDefaultDialog(data);
+          const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+          this.dialog.openDefaultDialog(data, config);
         }
       }
 
@@ -637,13 +642,19 @@ export class PepperiListContComponent {
 
       const startAction = () =>  this.pluginService.editAddon(action, rowData.Fields[0].AdditionalValue,
         res =>  this.pollExecution( this.translate.instant(dialogTitle), this.translate.instant(dialogContent.Text, dialogContent.Data), res.ExcecutionUUID || res.ExecutionUUID ),
-        error =>  this.dialog.openDefaultDialog(new PepDialogData({title: this.translate.instant('General_Error'), content:  error.fault.faultstring}))
-                                , version);
+        error => {
+            const data = new PepDialogData({title: this.translate.instant('General_Error'), content:  error.fault.faultstring});
+            const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+            this.dialog.openDefaultDialog(data, config);
+        }
+        , version);
       const data = new PepDialogData({
         title: this.translate.instant(dialogTitle),
         content: this.translate.instant(dialogContent.Text, dialogContent.Data),
         type: 'cancel-continue'});
-      this.dialog.openDefaultDialog(data).afterClosed().subscribe(performAction => {
+
+        const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+        this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(performAction => {
           performAction ? startAction() : null;
       });
   }
@@ -654,7 +665,8 @@ export class PepperiListContComponent {
         content: this.translate.instant('AddonManager_DeletePermissionMsg'),
         type: 'cancel-delete'
     });
-    const dialogRef = this.dialog.openDefaultDialog(data);
+    const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+    const dialogRef = this.dialog.openDefaultDialog(data, config);
     dialogRef.afterClosed().subscribe(res => {
         this.deletePermission(rowData)
     })
@@ -698,7 +710,8 @@ export class PepperiListContComponent {
         type:  'custom',
         showClose: false
     });
-    const dialogRef = this.dialog.openDefaultDialog(pollData);
+    const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+    const dialogRef = this.dialog.openDefaultDialog(pollData, config);
     const interval = window.setInterval(() => {
         this.pluginService.getExecutionLog(executionUUID, logRes => {
             if (dialogRef){
@@ -759,8 +772,8 @@ export class PepperiListContComponent {
                 const sortedVersions = filterdVersions.sort((a, b) => a.CreationDateTime > b.CreationDateTime ? 1 : -1);
                 let options = [];
                 sortedVersions.forEach( option => {
-                    const Value = `${option?.Version}${option?.Phased ? ' | Phased' : ' | Available'}${option?.Description ? ' | ' + option?.Description : ''}`;
-                    options.push({Key: option?.Version, Value});
+                    const value = `${option?.Version}${option?.Phased ? ' | Phased' : ' | Available'}${option?.Description ? ' | ' + option?.Description : ''}`;
+                    options.push({key: option?.Version, value});
                 });
                 const currentVersionId = rowData.Fields[2].Value;
                 const data = new PepDialogData({
@@ -769,35 +782,38 @@ export class PepperiListContComponent {
                         currentVersion: currentVersionId
                     }
                 });
+                const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
                 const dialogRef = this.dialog.openDialog(ChangeVersionDialogComponent, data);
                 dialogRef.afterClosed().subscribe(dialogResult => {
+                    if (dialogResult){
+                        const versionToChange = versions.find(version => version.Version === dialogResult.version);
+                        const currentVersion = versions.find(version => version.Version === currentVersionId);
+                        const actionName = versionToChange && currentVersion ?
+                                          (Date.parse(versionToChange.CreationDateTime) < Date.parse(currentVersion.CreationDateTime)
+                                      ? 'downgrade' : 'upgrade') : null;
+                        if (versionToChange && actionName) {
+                          this.pluginService.editAddon(actionName, rowData.Fields[0].AdditionalValue, res => {
+                              this.pollExecution(
+                                  this.translate.instant('AddonsManager_ChangeVersion_Header'),
+                                  this.translate.instant('AddonsManager_ChangeVersion_Body'),
+                                  res.ExcecutionUUID || res.ExecutionUUID );
+                            }, null, dialogResult.version);
+                        }
+                        else {
+                            const content = 'Installed addon is corrupted, please contact support.';
+                            const data = new PepDialogData({content});
+                            const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+                            this.dialog.openDefaultDialog(data, config);
+                        }
+                    }
 
-                      const versionToChange = versions.find(version => version.Version === dialogResult.version);
-                      const currentVersion = versions.find(version => version.Version === currentVersionId);
-                      const actionName = versionToChange && currentVersion ?
-                                        (Date.parse(versionToChange.CreationDateTime) < Date.parse(currentVersion.CreationDateTime)
-                                    ? 'downgrade' : 'upgrade') : null;
-                      if (versionToChange && actionName) {
-                        this.pluginService.editAddon(actionName, rowData.Fields[0].AdditionalValue, res => {
-                            this.pollExecution(
-                                this.translate.instant('AddonsManager_ChangeVersion_Header'),
-                                this.translate.instant('AddonsManager_ChangeVersion_Body'),
-                                res.ExcecutionUUID || res.ExecutionUUID );
-                          }, null, dialogResult.version);
-                      }
-                      else {
-                          const content = 'Installed addon is corrupted, please contact support.';
-                          const data = new PepDialogData({content});
-                          const config = this.dialog.getDialogConfig();
-                          this.dialog.openDefaultDialog(data, config);
-                      }
 
 
                 })
             } else {
               const content = 'Versions not available';
               const data = new PepDialogData({content});
-              const config = this.dialog.getDialogConfig();
+              const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
               this.dialog.openDefaultDialog(data, config);
             }
     }, null);

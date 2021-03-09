@@ -14,7 +14,9 @@
     "watch-client": "cd ./client-side && npm run single-spa && cd..",
     "build:server": "cd ./server-side && npm run build && cd ..",
     "watch-server": "cd ./server-side && npm run watch && cd ..",
-    "publish-addon": "npm run build && publish-addon"
+    "publish-addon": "npm run build && publish-addon",
+    "publish": "publish-addon"
+
   },
   "keywords": [],
   "author": "",
