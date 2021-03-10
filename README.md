@@ -1,7 +1,6 @@
-# @pepperi-addons Typescript Template
+# @pepperi-addons Addons' Manager
 
-A template for creating a pepperi addon with an angular app for the client-side & a typescript nodejs app for the server-side
-
+Addons' Manager - Addon that manages installation and permissions of all available addons
 * debugging server side right in vscode 
 * a build script for creating all compiled files for addon
 * a publish script for uploading the addon
@@ -16,11 +15,9 @@ A template for creating a pepperi addon with an angular app for the client-side 
 
 #### Install by running 
 ``` bash
-npm init @pepperi-addons
-```
+npm ci
 or 
-``` bash
-npx @pepperi-addons/create
+npm install if package-lock.json file doesn't exist
 ```
 
 ## Project structure
