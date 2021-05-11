@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { PepUIModule } from './modules/pepperi.module';
 import { MaterialModule } from './modules/material.module';
 import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component';
+import { SettingsContComponent } from './components/settings/settings.component'
 import { HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -22,15 +23,17 @@ import { ChangeVersionDialogComponent } from './components/dialogs/change-versio
 import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
 import { PermissionsDialogComponent } from './components/dialogs/permissions-dialog/permissions.component';
 import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.component';
+// import { BroadcastService } from '@pepperi-addons/ngx-broadcast';
+
 @NgModule({
     declarations: [
         AppComponent,
         PepperiListContComponent,
+        SettingsContComponent,
         EditDialogComponent,
         ChangeVersionDialogComponent,
         PermissionsDialogComponent,
         PepperiTableComponent
-
     ],
     imports: [
         BrowserModule,
@@ -49,7 +52,9 @@ import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.c
         FormsModule,
         ReactiveFormsModule,
     ],
-    providers: [],
+    providers: [
+        // BroadcastService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule {

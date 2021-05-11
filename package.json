@@ -16,7 +16,6 @@
     "watch-server": "cd ./server-side && npm run watch && cd ..",
     "publish-addon": "npm run build && publish-addon",
     "publish": "publish-addon"
-
   },
   "keywords": [],
   "author": "",

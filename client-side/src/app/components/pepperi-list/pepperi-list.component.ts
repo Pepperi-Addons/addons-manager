@@ -133,14 +133,19 @@ export class PepperiListContComponent {
   selectedRowsChanged(selectedRowsCount) {
     const selectData = this.pepList.getSelectedItemsData(true);
     let rowData;
+    
     if (selectData && selectData.rows && selectData.rows[0] !== '' && selectData.rows.length == 1) {
 
       const uuid = selectData.rows[0];
       rowData = this.pepList.getItemDataByID(uuid);
       this.addonUUID = rowData.Fields[0].AdditionalValue;
     }
-
+    
     this.listActions = selectedRowsCount > 0 && rowData ? this.getListActions(rowData) : [];
+    const numOfHiddens = (this.listActions.filter(action => action.hidden === true)).length;
+    if(this.listActions.length === numOfHiddens){
+      this.listActions = [];
+    }
     // this.topBarComp.componentRef.instance.listActionsData = this.listActions;
     // this.topBarComp.componentRef.instance.showListActions = this.listActions ? true : false;
     // this.cd.detectChanges();

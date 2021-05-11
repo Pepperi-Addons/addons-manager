@@ -1,0 +1,41 @@
+<div id="maintenanceCont">
+    <pep-date [key]="'MaintenanceDate'" 
+            [label]="'AddonsManager_Maintenance_date' | translate" 
+            [value]="maintenance?.AutomaticUpgradeAfter" 
+            [minDateValue]="maintenance?.MaintenanceMinDate" 
+            [maxDateValue]="maintenance?.MaintenanceMaxDate"
+            [xAlignment]="'left'" 
+            (valueChange)="onMaintenanceValueChanged($event)" >
+    </pep-date>
+
+    <!-- <pep-textbox [key]="'percentage'" 
+                 [label]="'AddonsManager_Maintenance_precents' | translate" 
+                 [type]="'percentage'" 
+                 [value]="maintenance?.AutomaticUpgradeAfterPercentage"
+                 (valueChange)="onMaintenanceValueChanged($event)">
+    </pep-textbox> -->
+    <pep-select [key]="'percentage'"
+                [showTitle]="true" 
+                [label]="'AddonsManager_Maintenance_precents' | translate" 
+                [emptyOption]="false" 
+                [value]="maintenance?.AutomaticUpgradeAfterPercentage"
+                [options]="percentageOptions" 
+                (valueChange)="onMaintenanceValueChanged($event)">
+    </pep-select>
+
+    <pep-select [key]="'MaintenanceHour'"
+                [showTitle]="true" 
+                [label]="'AddonsManager_Maintenance_Houer' | translate" 
+                [disabled]="false" 
+                [emptyOption]="false" 
+                [value]="maintenance?.MaintenanceWindow"
+                [options]="timeOptions" 
+                (valueChange)="onMaintenanceValueChanged($event)">
+    </pep-select>
+
+    <pep-button [value]="'AddonsManager_Maintenance_Publish' | translate" 
+                [sizeType]="'sm'" [styleType]="'strong'" 
+                [classNames]="'pull-left flip'"
+                (buttonClick)="publishMaintenanceData()">
+    </pep-button> 
+</div>

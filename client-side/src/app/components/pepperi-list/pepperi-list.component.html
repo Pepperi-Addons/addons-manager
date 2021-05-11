@@ -4,7 +4,7 @@
     </div>
     <div class="rowBody">
         <pep-top-bar [title] ="topBarTitle | translate" [inline]="true">
-            <pep-list-actions (actionClick)="onActionClicked($event)" [actions]="listActions" [sizeType]="'md'"></pep-list-actions>
+            <pep-list-actions *ngIf="listActions?.length"  (actionClick)="onActionClicked($event)" [actions]="listActions" [sizeType]="'md'"></pep-list-actions>
             <pep-list-chooser *ngIf="apiEndpoint === 'permissions'" [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
             <div header-end-content>
                 <pep-button *ngIf="apiEndpoint === 'permissions'" [iconName]="'number_plus'" [classNames]="'spacing-element strong color-main lg'" (click)="openPermissionsDialog()">

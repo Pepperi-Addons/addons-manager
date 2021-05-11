@@ -31,6 +31,12 @@
                         <pep-list-cont [apiEndpoint]="'permissions'" [addonsList]="addonsList" [addonData]="addonData"></pep-list-cont>
                     </ng-template>
                 </mat-tab>
+
+                <mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
+                    <ng-template matTabContent>
+                        <settings-cont></settings-cont>
+                    </ng-template>
+                </mat-tab>
             </mat-tab-group>
         </div>
     </div>

@@ -4,7 +4,7 @@
     "scripts": {
         "ng": "ng",
         "build": "ng build --configuration SingleSpa",
-        "single-spa": "ng build --watch --configuration SingleSpa",
+        "single-spa": "ng serve --port 4400  --configuration SingleSpa",
         "standalone": "ng serve  --port 4400 --configuration Standalone",
         "build-for-publish": "ng build --prod",
         "serve:standalone": "ng serve",
@@ -35,7 +35,8 @@
         "@ngx-gallery/core": "^5.0.0-beta.0",
         "@ngx-translate/core": "^13.0.0",
         "@ngx-translate/http-loader": "^6.0.0",
-        "@pepperi-addons/ngx-lib": "^0.1.104",
+        "@pepperi-addons/ngx-broadcast": "0.0.2",
+        "@pepperi-addons/ngx-lib": "^0.1.116",
         "@pepperi-addons/papi-sdk": "^1.17.3",
         "@tweenjs/tween.js": "^17.1.1",
         "angular2-signaturepad": "^2.11.0",
