@@ -52,7 +52,8 @@ export class AppComponent  {
     // self.PepperiListContComponent.onListChange(this.tabGroup.selectedIndex);
   }
   refreshSettingsTree(e){
-      this.addEditors.emit();
+    this.broadcastService.publish({ type: 'RELOAD_SETTINGS_BAR', payload: null});
+    //   this.addEditors.emit();
   }
 
 

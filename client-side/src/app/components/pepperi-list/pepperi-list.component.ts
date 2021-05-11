@@ -739,7 +739,7 @@ export class PepperiListContComponent {
             dialogRef.componentInstance.data.actionButtons = [actionButton];
             dialogRef.componentInstance.data.content = content;
             this.loadlist('addons');
-            // this.refreshSettingsTree.emit();
+            this.refreshSettingsTree.emit();
             window.clearInterval(interval);
 
           }
