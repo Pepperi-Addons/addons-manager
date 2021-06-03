@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { singleSpaPropsSubject } from 'src/single-spa/single-spa-props';
-import { PEP_BROADCAST_SERVICE, BroadcastService } from '@pepperi-addons/ngx-broadcast';
+//import { PEP_BROADCAST_SERVICE, BroadcastService } from '@pepperi-addons/ngx-broadcast';
 
 
 @Component({
@@ -22,7 +22,7 @@ export class AppComponent  {
       public translate: TranslateService,
       private activatedRoute: ActivatedRoute,
       private router: Router,
-      @Inject(PEP_BROADCAST_SERVICE) private broadcastService: BroadcastService
+      //@Inject(PEP_BROADCAST_SERVICE) private broadcastService: BroadcastService
     ) {
       let userLang = 'en';
       translate.setDefaultLang(userLang);
@@ -36,9 +36,6 @@ export class AppComponent  {
       });
 
       // this.broadcastService.publish({ type: 'RELOAD_SETTINGS_BAR', payload: null});
-
-
-
     }
 
 
@@ -52,7 +49,8 @@ export class AppComponent  {
     // self.PepperiListContComponent.onListChange(this.tabGroup.selectedIndex);
   }
   refreshSettingsTree(e){
-    this.broadcastService.publish({ type: 'RELOAD_SETTINGS_BAR', payload: null});
+    //this.broadcastService.publish({ type: 'RELOAD_SETTINGS_BAR', payload: null});
+    window.postMessage({ type: 'RELOAD_SETTINGS_BAR' }, '*');
     //   this.addEditors.emit();
   }
 
