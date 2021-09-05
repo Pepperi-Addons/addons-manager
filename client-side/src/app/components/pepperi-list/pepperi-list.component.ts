@@ -21,8 +21,7 @@ import { PepMenuItem } from '@pepperi-addons/ngx-lib/menu';
 import { PepListComponent, PepListViewType } from '@pepperi-addons/ngx-lib/list';
 import { PepTopBarComponent } from '@pepperi-addons/ngx-lib/top-bar';
 import { MatDialogConfig } from '@angular/material/dialog';
-
-
+import Semver from "semver";
 @Component({
   selector: 'pep-list-cont',
   templateUrl: './pepperi-list.component.html',
@@ -774,7 +773,7 @@ export class PepperiListContComponent {
 
             if (versions && versions.length) {
                 const filterdVersions = versions.filter( version => version.Available);
-                const sortedVersions = filterdVersions.sort((a, b) => a.CreationDateTime > b.CreationDateTime ? 1 : -1);
+                const sortedVersions = filterdVersions.sort((a, b) =>Semver.gt(a.Version, b.Version) ? 1 : -1);                
                 let options = [];
                 sortedVersions.forEach( option => {
                     const value = `${option?.Version}${option?.Phased ? ' | Phased' : ' | Available'}${option?.Description ? ' | ' + option?.Description : ''}`;
@@ -794,8 +793,7 @@ export class PepperiListContComponent {
                         const versionToChange = versions.find(version => version.Version === dialogResult.version);
                         const currentVersion = versions.find(version => version.Version === currentVersionId);
                         const actionName = versionToChange && currentVersion ?
-                                          (Date.parse(versionToChange.CreationDateTime) < Date.parse(currentVersion.CreationDateTime)
-                                      ? 'downgrade' : 'upgrade') : null;
+                        (Semver.lte(versionToChange.Version, currentVersion.Version) ? 'downgrade' : 'upgrade') : null;
                         if (versionToChange && actionName) {
                           this.pluginService.editAddon(actionName, rowData.Fields[0].AdditionalValue, res => {
                               this.pollExecution(
