@@ -1,13 +1,16 @@
 <div id="maintenanceCont">
+     <!--label class="body-xs normal ellipsis">{{upgradeAllmsg}}</label-->
+     <!--label class="body-xs normal ellipsis">Run upgrade all from the menu before selecting a date</label-->
+     <!--div class="pep-button md regular caution upgradeAllcont">Run upgrade all from the menu before selecting a date</div-->                                                
+    <div class="pep-button md regular caution upgradeAllcont" *ngIf="upgradeAllmsg !== ''" title="{{upgradeAllmsg}}">{{upgradeAllmsg}}</div>                                                
     <pep-date [key]="'MaintenanceDate'" 
-            [label]="maintenanceDateLabel" 
+            [label]="maintenanceDatemsg" 
             [value]="maintenance?.AutomaticUpgradeAfter" 
             [minDateValue]="maintenance?.MaintenanceMinDate" 
             [maxDateValue]="maintenance?.MaintenanceMaxDate"
             [xAlignment]="'left'" 
             (valueChange)="onMaintenanceValueChanged($event)" >
-    </pep-date>
-
+    </pep-date>       
     <!-- <pep-textbox [key]="'percentage'" 
                  [label]="'AddonsManager_Maintenance_precents' | translate" 
                  [type]="'percentage'" 

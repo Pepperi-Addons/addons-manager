@@ -23,8 +23,8 @@ export class _maintenance {
         this.MaintenanceWindow = hour;
     }
 
-    setFutureDate(updateOnHoldSince){//DI-18766
-        if(typeof updateOnHoldSince != 'undefined' && updateOnHoldSince!== ''){
+    private setFutureDate(updateOnHoldSince){//DI-18766
+        if(typeof updateOnHoldSince != 'undefined' && updateOnHoldSince != null && updateOnHoldSince!== ''){
             let currentDate: any = new Date(),
                 currentDatePlus3m : any = this.MaintenanceMaxDate,
                 updateOnHoldDate: any = new Date(updateOnHoldSince),    
@@ -57,7 +57,8 @@ export class _maintenance {
     private distributor;
     private updateOnHoldSince = '';
     private userLang = 'en';
-    public maintenanceDateLabel  = '';
+    public maintenanceDatemsg  = '';
+    public upgradeAllmsg = '';
     public maintenance ;    
     public timeOptions = [
         { key: "01:00", value: "01:00" },
@@ -124,11 +125,19 @@ export class _maintenance {
 
                 this.maintenance = new _maintenance(res.AutomaticUpgradeAfter, res['AutomaticUpgradeAfterX%'], hour);
                 this.maintenance.setFutureDate(res['UpdateOnHoldSince']);                                
-                this.maintenanceDateLabel = this.translate.instant('AddonsManager_Maintenance_date') ;
+                this.maintenanceDatemsg = this.translate.instant('AddonsManager_Maintenance_date') ;
 
-                if(this.maintenance?.updateOnHoldSince && typeof this.maintenance.updateOnHoldSince != 'undefined' && this.maintenance.updateOnHoldSince !== ''){          //DI-18766          
-                    this.maintenanceDateLabel  += ' (' + this.translate.instant('AddonsManager_Maintenance_freezestartdate') + ' ' 
-                    + new Date(this.maintenance.updateOnHoldSince).toLocaleDateString(this.userLang) + ')';      
+                if(this.maintenance?.updateOnHoldSince && typeof this.maintenance.updateOnHoldSince != 'undefined' && this.maintenance.updateOnHoldSince !== ''){          
+                    //DI-18766                                  
+                    if(this.maintenance?.MaintenanceMaxDate < new Date())
+                    {
+                        this.upgradeAllmsg = this.translate.instant('AddonsManager_Maintenance_upgradeAll');
+                    }                  
+
+                    if(res.AutomaticUpgradeAfter != ''){
+                        this.maintenanceDatemsg  += ' (' + this.translate.instant('AddonsManager_Maintenance_freezestartdate') + ' ' 
+                                                      + new Date(this.maintenance.updateOnHoldSince).toLocaleDateString(this.userLang) + ')';      
+                    }
                 }                               
             }
       });

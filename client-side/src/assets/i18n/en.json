@@ -53,6 +53,7 @@
 	"AddonsManager_Maintenance_date": "Automatic update freeze end",
 	"AddonsManager_Maintenance_freezestartdate": "freeze started at",	
 	"AddonsManager_Maintenance_precents": "Automatic updates after % of phased deployment",
+	"AddonsManager_Maintenance_upgradeAll" : "Run upgrade all from the menu before selecting a date",
 	"AddonsManager_Maintenance_Houer": "Maintenance hour",
 	"AddonsManager_Maintenance_Publish": "Publish",
 	"AddonsManager_Maintenance_precents_not_valid": "Automatic updates after % field should containe values between 0 and 99"
