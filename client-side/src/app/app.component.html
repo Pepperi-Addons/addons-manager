@@ -32,9 +32,10 @@
                     </ng-template>
                 </mat-tab>
 
-                <mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
+                <!--mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}"-->
+                <mat-tab label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
                     <ng-template matTabContent>
-                        <settings-cont></settings-cont>
+                        <settings-cont [isSupportUser]="route?.queryParams?.support_user"></settings-cont>
                     </ng-template>
                 </mat-tab>
             </mat-tab-group>

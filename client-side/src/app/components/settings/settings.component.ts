@@ -17,11 +17,31 @@ export class _maintenance {
         // The date cannot be bigger than current date+3 months DI-17686
         this.MaintenanceMinDate = new Date();
         this.MaintenanceMaxDate = new Date();
-        this.MaintenanceMaxDate.setMonth(this.MaintenanceMaxDate.getMonth() + +3);
-
+        this.MaintenanceMaxDate.setMonth(this.MaintenanceMaxDate.getMonth() + +3);                
         this.AutomaticUpgradeAfter = date;
         this.AutomaticUpgradeAfterPercentage = percentage !== '' ? percentage : '0';
         this.MaintenanceWindow = hour;
+    }
+
+    setFutureDate(updateOnHoldSince){//DI-18766
+        if(typeof updateOnHoldSince != 'undefined' && updateOnHoldSince!== ''){
+            let currentDate: any = new Date(),
+                currentDatePlus3m : any = this.MaintenanceMaxDate,
+                updateOnHoldDate: any = new Date(updateOnHoldSince),    
+                updateOnHoldDatePlus6m : any = new Date(updateOnHoldSince);
+
+            updateOnHoldDatePlus6m.setMonth(updateOnHoldDate.getMonth() + +6);         
+            
+            const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds                      
+            const updateOnHold_diffDays = Math.abs((updateOnHoldDatePlus6m - updateOnHoldDate) / oneDay);
+            const threeMonths_diffDays =  Math.abs((currentDatePlus3m - currentDate) / oneDay);
+            
+            if(updateOnHold_diffDays < threeMonths_diffDays){
+                this.MaintenanceMaxDate = updateOnHoldDatePlus6m;
+            }
+
+        }
+
     }
 }
 
@@ -35,7 +55,10 @@ export class _maintenance {
   
     @Input() isSupportUser = '';
     private distributor;
-    public maintenance ;
+    private updateOnHoldSince = '';
+    private userLang = 'en';
+    public maintenanceDateLabel  = '';
+    public maintenance ;    
     public timeOptions = [
         { key: "01:00", value: "01:00" },
         { key: "02:00", value: "02:00" },
@@ -81,10 +104,10 @@ export class _maintenance {
         public pepData: PepDataConvertorService
     ) {
   
-        let userLang = 'en';
-        translate.setDefaultLang(userLang);
-        userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
-        translate.use(userLang);
+        //let userLang = 'en';
+        translate.setDefaultLang(this.userLang);
+        this.userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
+        translate.use(this.userLang);
 
         this.pluginService.getMaintenance(res => {
 
@@ -100,6 +123,13 @@ export class _maintenance {
                 }
 
                 this.maintenance = new _maintenance(res.AutomaticUpgradeAfter, res['AutomaticUpgradeAfterX%'], hour);
+                this.maintenance.setFutureDate(res['UpdateOnHoldSince']);                                
+                this.maintenanceDateLabel = this.translate.instant('AddonsManager_Maintenance_date') ;
+
+                if(this.maintenance?.updateOnHoldSince && typeof this.maintenance.updateOnHoldSince != 'undefined' && this.maintenance.updateOnHoldSince !== ''){          //DI-18766          
+                    this.maintenanceDateLabel  += ' (' + this.translate.instant('AddonsManager_Maintenance_freezestartdate') + ' ' 
+                    + new Date(this.maintenance.updateOnHoldSince).toLocaleDateString(this.userLang) + ')';      
+                }                               
             }
       });
   
@@ -109,6 +139,10 @@ export class _maintenance {
         switch(e.key){
             case 'MaintenanceDate': {
                 this.maintenance['AutomaticUpgradeAfter'] = e.value;
+                if(this.updateOnHoldSince == ''){//DI-18766
+                    this.updateOnHoldSince = new Date().toLocaleDateString(this.userLang);
+                    
+                }
                 break;
             }
             case 'percentage': {
@@ -129,7 +163,7 @@ export class _maintenance {
                 this.maintenance['MaintenanceWindow'] = e.value;
                 break;
             }
-        }
+        }       
         
     }
 
@@ -148,6 +182,7 @@ export class _maintenance {
         obj.Maintenance.AutomaticUpgradeAfter = this.maintenance['AutomaticUpgradeAfter'];
         obj.Maintenance['AutomaticUpgradeAfterX%'] = this.maintenance['AutomaticUpgradeAfterPercentage'];
         obj.Maintenance.MaintenanceWindow = this.maintenance['MaintenanceWindow'];
+        obj.Maintenance['UpdateOnHoldSince'] = this.updateOnHoldSince;
 
        this.pluginService.publishMaintenance(obj, res => {
            if(res){

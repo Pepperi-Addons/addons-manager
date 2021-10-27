@@ -1,6 +1,6 @@
 <div id="maintenanceCont">
     <pep-date [key]="'MaintenanceDate'" 
-            [label]="'AddonsManager_Maintenance_date' | translate" 
+            [label]="maintenanceDateLabel" 
             [value]="maintenance?.AutomaticUpgradeAfter" 
             [minDateValue]="maintenance?.MaintenanceMinDate" 
             [maxDateValue]="maintenance?.MaintenanceMaxDate"
@@ -14,7 +14,7 @@
                  [value]="maintenance?.AutomaticUpgradeAfterPercentage"
                  (valueChange)="onMaintenanceValueChanged($event)">
     </pep-textbox> -->
-    <pep-select [key]="'percentage'"
+    <pep-select *ngIf= "isSupportUser" [key]="'percentage'"
                 [showTitle]="true" 
                 [label]="'AddonsManager_Maintenance_precents' | translate" 
                 [emptyOption]="false" 
