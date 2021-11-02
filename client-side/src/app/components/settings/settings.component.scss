@@ -1,4 +1,9 @@
-#maintenanceCont{
+:host {
+    margin: 0 -1rem;
+    display: block;
+}
+
+#maintenanceCont {
     max-width: 20rem;
     margin: 1rem 0 0 0;
     display: grid;
@@ -8,7 +13,7 @@
         display: block;
     }
 
-    .upgradeAllcont{
+    .upgradeAllcont {
         height: auto;
         cursor: default;
         line-height: unset;                                
