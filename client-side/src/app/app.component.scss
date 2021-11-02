@@ -7,9 +7,10 @@
     }
 }
 
+.tabs {
+    height: inherit;
 
-
-
-
-
-
+    ::ng-deep .mat-tab-body-wrapper {
+        height: inherit;
+    }
+}

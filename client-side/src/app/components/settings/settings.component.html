@@ -11,7 +11,7 @@
             [minDateValue]="maintenance?.MaintenanceMinDate" 
             [maxDateValue]="maintenance?.MaintenanceMaxDate"
             [xAlignment]="'left'" 
-            (valueChange)="onMaintenanceValueChanged($event)" >
+            (valueChange)="onMaintenanceValueChanged('MaintenanceDate', $event)" >
     </pep-date>          
     <pep-select *ngIf= "isSupportUser" [key]="'percentage'"
                 [showTitle]="true" 
@@ -19,7 +19,7 @@
                 [emptyOption]="false" 
                 [value]="maintenance?.AutomaticUpgradeAfterPercentage"
                 [options]="percentageOptions" 
-                (valueChange)="onMaintenanceValueChanged($event)">
+                (valueChange)="onMaintenanceValueChanged('percentage', $event)">
     </pep-select>
 
     <pep-select [key]="'MaintenanceHour'"
@@ -29,11 +29,11 @@
                 [emptyOption]="false" 
                 [value]="maintenance?.MaintenanceWindow"
                 [options]="timeOptions" 
-                (valueChange)="onMaintenanceValueChanged($event)">
+                (valueChange)="onMaintenanceValueChanged('MaintenanceHour', $event)">
     </pep-select>
 
     <pep-button [value]="'AddonsManager_Maintenance_Publish' | translate" 
-                [sizeType]="'sm'" [styleType]="'strong'" 
+                [sizeType]="'md'" [styleType]="'strong'" 
                 [classNames]="'pull-left flip'"
                 (buttonClick)="publishMaintenanceData()">
     </pep-button> 

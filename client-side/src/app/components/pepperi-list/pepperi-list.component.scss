@@ -1,13 +1,20 @@
 :host {
     height: inherit;
+    margin: 0 -0.75rem;
+    display: block;
 }
 
 .listContainer {
     width: 100%;
+    height: inherit;
+    display: grid;
+    grid-template-rows: auto 1fr;
+
     table {
         width: 100%;
     }
-    .rowHeader{
+    
+    .rowHeader {
         display: flex;
         padding-bottom: 1rem;
         padding-top: 1rem;
@@ -17,49 +24,18 @@
     }
 
     .rowBody {
-
-        .topBarDynCont {
-
-            // clear: both;
-
-            // .table-body {
-            //     overflow-y: auto;
-
-            // }
-        }
-
-        #mainContent {
-            padding: 0;
-            width: 100%;
-            .main-layout {
-                padding: 0;
-                width: inherit;
-                .content {
-                    margin: 0 !important;
-                }
-            }
-        }
-
-
-
-}
-
-
-
-}
-::ng-deep pep-list {
-    .table-header{
-        top: 0 !important;
+        display: grid;
+        grid-template-rows: auto 1fr;
     }
 }
+
+// ::ng-deep pep-list {
+//     .table-header{
+//         top: 0 !important;
+//     }
+// }
 ::ng-deep pep-top-bar {
     .content{
         min-height: 2.75rem;
-
     }
 }
-
-
-
-
-

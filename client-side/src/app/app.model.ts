@@ -62,7 +62,7 @@ export class InstalledAddon {
     HasVersions?: any;
     constructor(uuid = '', addon: Addon = null, additionalData = '{}', systemData =  {Versions: []}) {
         this.UUID = uuid;
-        this.Addon = name;
+        this.Addon = addon;
         this.AdditionalData = additionalData;
         this.SystemData = systemData;
     }

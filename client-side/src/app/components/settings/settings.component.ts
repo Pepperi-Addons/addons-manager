@@ -151,10 +151,10 @@ export class _maintenance {
 
     }
 
-    onMaintenanceValueChanged(e){
-        switch(e.key){
+    onMaintenanceValueChanged(key, value){
+        switch(key){
             case 'MaintenanceDate': {
-                this.maintenance['AutomaticUpgradeAfter'] = e.value;
+                this.maintenance['AutomaticUpgradeAfter'] = value;
                 if(typeof this.maintenance.updateOnHoldSince == 'undefined' || this.maintenance.updateOnHoldSince == null || this.maintenance.updateOnHoldSince == ''){//DI-18766
                     this.maintenance.updateOnHoldSince = new Date().toLocaleDateString(this.userLang);
                     
@@ -162,8 +162,8 @@ export class _maintenance {
                 break;
             }
             case 'percentage': {
-                if(e.value >= 0 && e.value <= 99){
-                    this.maintenance['AutomaticUpgradeAfterPercentage'] = e.value;
+                if(value >= 0 && value <= 99){
+                    this.maintenance['AutomaticUpgradeAfterPercentage'] = value;
                 }
                 else{
                     this.maintenance['AutomaticUpgradeAfterPercentage'] = 0;
@@ -176,7 +176,7 @@ export class _maintenance {
                 break;
             }
             case 'MaintenanceHour': {
-                this.maintenance['MaintenanceWindow'] = e.value;
+                this.maintenance['MaintenanceWindow'] = value;
                 break;
             }
         }       

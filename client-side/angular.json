@@ -17,11 +17,12 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "outputPath": "../publish/editors",
+            "outputPath": "../publish",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.json",
+            "sourceMap": false,
             "aot": true,
             "stylePreprocessorOptions": {
                 "includePaths": [
@@ -38,29 +39,16 @@
                 "output": "./assets/ngx-lib"
               }
             ],
-            "styles": [
-              "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
-              "node_modules/quill/dist/quill.snow.css",
-              "node_modules/quill/dist/quill.core.css",
-              "src/theme.scss",
-              "src/styles.scss"
-            ],
             "scripts": [
               "node_modules/quill/dist/quill.core.js"
             ],
             "customWebpackConfig": {
-              "path": "extra-webpack.config.js",
+              "path": "webpack.config.js",
               "libraryName": "client-side",
               "libraryTarget": "umd"
             }
           },
           "configurations": {
-            "Standalone": {
-
-            },
-            "SingleSpa": {
-
-            },
             "production": {
               "fileReplacements": [
                 {
@@ -70,8 +58,6 @@
               ],
               "optimization": true,
               "outputHashing": "none",
-              "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -88,8 +74,18 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "outputHashing": "none"
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
@@ -98,67 +94,17 @@
           },
           "configurations": {
             "Standalone": {
-
             },
             "SingleSpa": {
-
             },
             "production": {
               "browserTarget": "client-side:build:production"
-            }
-          }
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "client-side:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "tsconfig.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "client-side:serve"
-          },
-          "configurations": {
-            "Standalone": {
-
             },
-            "SingleSpa": {
-
-            },
-            "production": {
-              "devServerTarget": "client-side:serve:production"
+            "development": {
+                "browserTarget": "client-side:build:development"
             }
-          }
+           },
+        "defaultConfiguration": "development"
         }
       }
     }
