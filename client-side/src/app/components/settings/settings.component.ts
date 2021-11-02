@@ -4,7 +4,7 @@ import { Component, EventEmitter, OnInit, Input, ComponentRef, ViewChild, Output
 import { Subscription, SubscriptionLike } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { AppService } from 'src/app/app.service';
-import { PepDialogData, PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
+import { PepDialogActionButton, PepDialogData, PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
 
 export class _maintenance {
     AutomaticUpgradeAfter: string; // Date
@@ -12,8 +12,9 @@ export class _maintenance {
     MaintenanceWindow: string; // Hour
     MaintenanceMinDate: Date;
     MaintenanceMaxDate: Date;
+    updateOnHoldSince: string = '';
 
-    constructor(date = '', percentage = '0', hour = '') {
+    constructor(updateOnHoldDate = '', date = '', percentage = '0', hour = '') {
         // The date cannot be bigger than current date+3 months DI-17686
         this.MaintenanceMinDate = new Date();
         this.MaintenanceMaxDate = new Date();
@@ -21,14 +22,15 @@ export class _maintenance {
         this.AutomaticUpgradeAfter = date;
         this.AutomaticUpgradeAfterPercentage = percentage !== '' ? percentage : '0';
         this.MaintenanceWindow = hour;
+        this.updateOnHoldSince = updateOnHoldDate;
     }
 
-    private setFutureDate(updateOnHoldSince){//DI-18766
-        if(typeof updateOnHoldSince != 'undefined' && updateOnHoldSince != null && updateOnHoldSince!== ''){
+    private setFutureDate(maintenanceObj){//DI-18766
+        if(typeof maintenanceObj.updateOnHoldSince != 'undefined' && maintenanceObj.updateOnHoldSince != null && maintenanceObj.updateOnHoldSince!== ''){
             let currentDate: any = new Date(),
                 currentDatePlus3m : any = this.MaintenanceMaxDate,
-                updateOnHoldDate: any = new Date(updateOnHoldSince),    
-                updateOnHoldDatePlus6m : any = new Date(updateOnHoldSince);
+                updateOnHoldDate: any = new Date(maintenanceObj.updateOnHoldSince),    
+                updateOnHoldDatePlus6m : any = new Date(maintenanceObj.updateOnHoldSince);
 
             updateOnHoldDatePlus6m.setMonth(updateOnHoldDate.getMonth() + +6);         
             
@@ -54,12 +56,12 @@ export class _maintenance {
   export class SettingsContComponent {
   
     @Input() isSupportUser = '';
-    private distributor;
-    private updateOnHoldSince = '';
+    private distributor;   
     private userLang = 'en';
     public maintenanceDatemsg  = '';
     public upgradeAllmsg = '';
-    public maintenance ;    
+    public maintenance ;   
+    public globalMenu;  
     public timeOptions = [
         { key: "01:00", value: "01:00" },
         { key: "02:00", value: "02:00" },
@@ -114,42 +116,47 @@ export class _maintenance {
 
             this.distributor = res;
             if (res && res.Maintenance) {
-                res = res.Maintenance;
-
-                let hour = '';
-
-                if(res.MaintenanceWindow && res.MaintenanceWindow != ''){
-                    const tmp = res.MaintenanceWindow.split(':');
-                    hour = tmp[0] + ':' + tmp[1];
-                }
-
-                this.maintenance = new _maintenance(res.AutomaticUpgradeAfter, res['AutomaticUpgradeAfterX%'], hour);
-                this.maintenance.setFutureDate(res['UpdateOnHoldSince']);                                
-                this.maintenanceDatemsg = this.translate.instant('AddonsManager_Maintenance_date') ;
-
-                if(this.maintenance?.updateOnHoldSince && typeof this.maintenance.updateOnHoldSince != 'undefined' && this.maintenance.updateOnHoldSince !== ''){          
-                    //DI-18766                                  
-                    if(this.maintenance?.MaintenanceMaxDate < new Date())
-                    {
-                        this.upgradeAllmsg = this.translate.instant('AddonsManager_Maintenance_upgradeAll');
-                    }                  
-
-                    if(res.AutomaticUpgradeAfter != ''){
-                        this.maintenanceDatemsg  += ' (' + this.translate.instant('AddonsManager_Maintenance_freezestartdate') + ' ' 
-                                                      + new Date(this.maintenance.updateOnHoldSince).toLocaleDateString(this.userLang) + ')';      
-                    }
-                }                               
+                this.setMaintenanceData(res.Maintenance);               
             }
       });
   
+    }  
+  
+    setMaintenanceData(res){        
+
+        let hour = '';
+
+        if(res.MaintenanceWindow && res.MaintenanceWindow != ''){
+            const tmp = res.MaintenanceWindow.split(':');
+            hour = tmp[0] + ':' + tmp[1];
+        }
+
+        this.maintenance = new _maintenance(res.AutomaticUpgradeOnHoldSince, res.AutomaticUpgradeAfter, res['AutomaticUpgradeAfterX%'], hour);               
+        this.maintenance.setFutureDate(this.maintenance);                                
+        this.maintenanceDatemsg = this.translate.instant('AddonsManager_Maintenance_date') ;
+        this.globalMenu =  [ { "key": "updateAll","text": this.translate.instant('AddonsManager_Maintenance_updateAll'),"parent": null,"selected": false }];
+
+        if(this.maintenance?.updateOnHoldSince && typeof this.maintenance.updateOnHoldSince != 'undefined' && this.maintenance.updateOnHoldSince !== ''){          
+            //DI-18766                                  
+            if(this.maintenance?.MaintenanceMaxDate < new Date())
+            {
+                this.upgradeAllmsg = this.translate.instant('AddonsManager_Maintenance_upgradeAll');
+            }                  
+
+            if(this.maintenance.AutomaticUpgradeAfter != ''){
+                this.maintenanceDatemsg  += ' (' + this.translate.instant('AddonsManager_Maintenance_freezestartdate') + ' ' 
+                                              + new Date(this.maintenance.updateOnHoldSince).toLocaleDateString(this.userLang) + ')';      
+            }
+        }                               
+
     }
 
     onMaintenanceValueChanged(e){
         switch(e.key){
             case 'MaintenanceDate': {
                 this.maintenance['AutomaticUpgradeAfter'] = e.value;
-                if(this.updateOnHoldSince == ''){//DI-18766
-                    this.updateOnHoldSince = new Date().toLocaleDateString(this.userLang);
+                if(typeof this.maintenance.updateOnHoldSince == 'undefined' || this.maintenance.updateOnHoldSince == null || this.maintenance.updateOnHoldSince == ''){//DI-18766
+                    this.maintenance.updateOnHoldSince = new Date().toLocaleDateString(this.userLang);
                     
                 }
                 break;
@@ -176,25 +183,64 @@ export class _maintenance {
         
     }
 
-    publishMaintenanceData() {
+    menuItemClick(e){
+        const modalTitle = this.translate.instant('AddonsManager_Maintenance_updateAllModalTitle');
+        const content = this.translate.instant('AddonsManager_Maintenance_updateAllModalMessage');
+        const actionButtons = [
+          new PepDialogActionButton(
+              this.translate.instant('AddonManager_Cancel')
+          ),
+          new PepDialogActionButton(
+              this.translate.instant('AddonManager_Ok'),
+              'strong',
+              () => this.updateAllAddons())
+        ];
+    
+        const data = new PepDialogData({title: modalTitle, actionsType: 'custom', content, actionButtons});    
+        this.dialog.openDefaultDialog(data);
+    
+      }
+    
+      updateAllAddons(){
+            const body = {};              
+            this.pluginService.updateAllAddons(body, res => {
+                if(res){    
+                    this.maintenance.updateOnHoldSince = '';
+                    if(new Date(this.maintenance.AutomaticUpgradeAfter) > new Date())//has a future date 
+                    {
+                        this.maintenance.updateOnHoldSince = new Date().toLocaleDateString(this.userLang);
+
+                    }
+
+                    this.publishMaintenanceData();
+
+                    const modalTitle = null; //this.translate.instant('');
+                    const content = this.translate.instant('AddonsManager_Maintenance_UpdateAllSuccess');
+                    const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
+                    const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+                    this.dialog.openDefaultDialog(data, config);
+                }
+            });
+     
+      }
+
+
+    publishMaintenanceData() {  
         const obj = {
             'InternalID': this.distributor.InternalID || null,
-            'UUID': this.distributor.UUID || null,
-            // 'Name': this.distributor.Name,
-            // 'Email': this.distributor.Email,
-            // 'Phone': this.distributor.Phone,
-            // 'Street': this.distributor.Street,
-            // 'ZipCode': this.distributor.ZipCode,
+            'UUID': this.distributor.UUID || null,            
             'Maintenance': this.distributor.Maintenance
         } 
       
         obj.Maintenance.AutomaticUpgradeAfter = this.maintenance['AutomaticUpgradeAfter'];
         obj.Maintenance['AutomaticUpgradeAfterX%'] = this.maintenance['AutomaticUpgradeAfterPercentage'];
         obj.Maintenance.MaintenanceWindow = this.maintenance['MaintenanceWindow'];
-        obj.Maintenance['UpdateOnHoldSince'] = this.updateOnHoldSince;
+        obj.Maintenance.AutomaticUpgradeOnHoldSince = this.maintenance.updateOnHoldSince;
 
        this.pluginService.publishMaintenance(obj, res => {
            if(res){
+
+                this.setMaintenanceData(res.Maintenance);                
                 const modalTitle = null; //this.translate.instant('');
                 const content = this.translate.instant('Addon_SuccessfulOperation');
                 const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});

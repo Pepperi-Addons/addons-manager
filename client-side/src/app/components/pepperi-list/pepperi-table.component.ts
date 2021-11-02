@@ -13,6 +13,7 @@ import { PepListComponent } from '@pepperi-addons/ngx-lib/list';
       [selectionTypeForActions]="'single'"
       [noDataFoundMsg]="'No data'"
       [parentScroll]="listContainer"
+      [viewType] = "'table'"
       (listChange)="listChanged.emit($event)"
       (sortingChange)="sortingChanged.emit($event)"
       (fieldClick)="fieldClicked.emit($event)"
@@ -70,7 +71,7 @@ export class PepperiTableComponent implements OnInit, OnChanges {
                 });
             }
 
-            this.customList.initListData(uiControl, buffer.length, buffer, 'table', '', true);
+            this.customList.initListData(uiControl, buffer.length, buffer);
         }
     }
 

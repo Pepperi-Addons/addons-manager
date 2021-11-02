@@ -21,6 +21,7 @@
                     [selectionTypeForActions]="'single'"
                     [noDataFoundMsg]="noDataMsg | translate"
                     [parentScroll]="pepperiListCont"
+                    [viewType] = "'table'"
                     (fieldClick)="onCustomizeFieldClick($event)"
                     (selectedItemsChange)="selectedRowsChanged($event)" >
                     </pep-list>

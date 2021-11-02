@@ -5,6 +5,8 @@
 	"AddonManager_Add_Permission": "Add permission",
 	"AddonManager_Endpoint": "Enter endpoint to test",
 	"AddonManager_Submit": "Submit",
+	"AddonManager_Ok": "Ok",
+	"AddonManager_Cancel": "Cancel",
 	"AddonManager_addonSecTitle": "Manage addons (install, uninstall and upgrade).",
 	"AddonManager_permissionSecTitle": "Define which settings editors can be executed according to the profile.<br>No need to define the Admin profile, Admin can run all the settings editors. ",
 	"AddonManager_Updates_Paragraph": "Available updates for your installed addons.",
@@ -53,8 +55,12 @@
 	"AddonsManager_Maintenance_date": "Automatic update freeze end",
 	"AddonsManager_Maintenance_freezestartdate": "freeze started at",	
 	"AddonsManager_Maintenance_precents": "Automatic updates after % of phased deployment",
-	"AddonsManager_Maintenance_upgradeAll" : "Run upgrade all from the menu before selecting a date",
+	"AddonsManager_Maintenance_upgradeAll" : "Run upgrade all from the menu before selecting an upgrade freeze end date",
+	"AddonsManager_Maintenance_updateAll" : "Update all",
 	"AddonsManager_Maintenance_Houer": "Maintenance hour",
 	"AddonsManager_Maintenance_Publish": "Publish",
+	"AddonsManager_Maintenance_updateAllModalMessage" : "Please confirm updating the modules to the latest version",
+	"AddonsManager_Maintenance_updateAllModalTitle" : "Update all modules",
+	"AddonsManager_Maintenance_UpdateAllSuccess" : "All modules are up to date",	
 	"AddonsManager_Maintenance_precents_not_valid": "Automatic updates after % field should containe values between 0 and 99"
 }

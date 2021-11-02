@@ -245,9 +245,11 @@ export class PepperiListContComponent {
           .filter( field => field.ApiName === 'Description')[0].AdditionalValue === "1" : false;
       }
 
+      /*
       action = new PepMenuItem({ key: 'Edit', text: this.translate.instant('Edit'),
       hidden: !isInstalled || (!this.isSupportUser && !this.enableAddonAutomaticUpgrade)});
       retVal.push(action);
+    */
 
       action = new PepMenuItem({ key: 'Install', text: this.translate.instant('Install'),
       hidden:  isInstalled });
@@ -290,14 +292,14 @@ export class PepperiListContComponent {
 
       const tableData = new Array<PepRowData>();
       res.forEach((addon: InstalledAddon) => {
-            const userKeys = ['Name', 'Description', 'Version', 'LastUpgradeDateTime'];
-            const supportUserKeys = this.isSupportUser === 'true' ? ['Type', 'AutomaticUpgrade' ] : [];
+            const userKeys = ['Name', 'Description', 'Version', 'LastUpgradeDateTime'];            
+            const supportUserKeys = this.isSupportUser === 'true' ? ['Type'] : [];//DI-18767
             const allKeys = [ ...userKeys,  ...supportUserKeys];
             tableData.push(this.convertAddonToPepperiRowData(addon, allKeys));
         });
       const uiControl = this.pepData.getUiControl(tableData[0]);
       const pepperiListObj = this.pepData.convertListData(tableData);
-      this.pepList.initListData(uiControl, pepperiListObj.length, pepperiListObj, 'table', '', true);
+      this.pepList.initListData(uiControl, pepperiListObj.length, pepperiListObj);
     }
   }
 
@@ -340,10 +342,10 @@ export class PepperiListContComponent {
                 this.existPermissions.forEach((permission: InstalledAddon) => tableData.push(this.convertPermissionToPepperiRowData(permission, userKeys)));
                 const pepperiListObj = this.pepData.convertListData(tableData);
                 const uiControl = this.pepData.getUiControl(tableData[0]);
-                this.pepList.initListData(uiControl, pepperiListObj.length, pepperiListObj, 'table', '', true);
+                this.pepList.initListData(uiControl, pepperiListObj.length, pepperiListObj);
             } else {
               this.existPermissions = [];
-              this.pepList.initListData(null, 0, [], 'table', '', true);
+              this.pepList.initListData(null, 0, []);
             }
         }, error => {});
       }
@@ -655,7 +657,7 @@ export class PepperiListContComponent {
       const data = new PepDialogData({
         title: this.translate.instant(dialogTitle),
         content: this.translate.instant(dialogContent.Text, dialogContent.Data),
-        type: 'cancel-continue'});
+        actionsType: 'cancel-continue'});
 
         const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
         this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(performAction => {
@@ -667,7 +669,7 @@ export class PepperiListContComponent {
     const data = new PepDialogData({
         title: this.translate.instant('AddonManager_DeletePermissionTitle'),
         content: this.translate.instant('AddonManager_DeletePermissionMsg'),
-        type: 'cancel-delete'
+        actionsType: 'cancel-delete'
     });
     const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
     const dialogRef = this.dialog.openDefaultDialog(data, config);
@@ -711,7 +713,7 @@ export class PepperiListContComponent {
     const pollData = new PepDialogData({
         title,
         content: this.translate.instant('AddonInstallation_Progress'),
-        type:  'custom',
+        actionsType:  'custom',
         showClose: false
     });
     const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');

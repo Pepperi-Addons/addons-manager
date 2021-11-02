@@ -1,22 +1,36 @@
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const singleSpaAngularWebpack = require('single-spa-angular/lib/webpack').default;
-const webpack = require('webpack');
+const { merge } = require('webpack-merge');
 
-module.exports = (config, options, env) => {
-    config.plugins.push(
-        new webpack.DefinePlugin({
-          CLIENT_MODE: JSON.stringify(env.configuration),
-        })
-    )       
-    
-    const singleSpaWebpackConfig = singleSpaAngularWebpack(config, options);
-          
-    if (env.configuration === 'Standalone') {
-        return config;
-    }
-    else {
-        return singleSpaWebpackConfig;
-    }
+module.exports = (angularWebpackConfig, options) => {
+    const moduleFederationfWebpackConfig = {
+        output: {
+          uniqueName: "managerEditor"
+        },
+        optimization: {
+          runtimeChunk: false,
+        },
+        plugins: [
+          new ModuleFederationPlugin({
+            remotes: {},
+            name: "manager_editor",
+            filename: "manager_editor.js",
+            exposes: {
+            },
+            shared: {
+              "@angular/core": { eager: true, singleton: true,  strictVersion: false },
+              "@angular/common": { eager: true,singleton: true,strictVersion: false },
+              "@angular/common/http": { eager: true, singleton: true, strictVersion: false },
+              "rxjs": { eager: true,singleton: true,strictVersion: false },
+              "@ngx-translate/core": { eager: true, singleton: true, strictVersion: false },
+              "@angular/router": { eager: true, singleton: true,  strictVersion: false }
 
-
-    // Feel free to modify this webpack config however you'd like to
+          }
+          })
+        ],
+      };
+    const mergedWebpackConfig = merge(angularWebpackConfig, moduleFederationfWebpackConfig);
+    const singleSpaWebpackConfig = singleSpaAngularWebpack(mergedWebpackConfig, options);
+    return singleSpaWebpackConfig;
 };
+

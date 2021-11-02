@@ -1,6 +1,8 @@
-<div id="maintenanceCont">
-     <!--label class="body-xs normal ellipsis">{{upgradeAllmsg}}</label-->
-     <!--label class="body-xs normal ellipsis">Run upgrade all from the menu before selecting a date</label-->
+<div class="right-container pull-right flip">
+    <pep-menu iconName="system_menu"  type="action" styleType="weak"
+    sizeType="md" classNames="" [items]="globalMenu" [disabled]="false" (menuItemClick)="menuItemClick($event)" ></pep-menu>
+</div>
+<div id="maintenanceCont">        
      <!--div class="pep-button md regular caution upgradeAllcont">Run upgrade all from the menu before selecting a date</div-->                                                
     <div class="pep-button md regular caution upgradeAllcont" *ngIf="upgradeAllmsg !== ''" title="{{upgradeAllmsg}}">{{upgradeAllmsg}}</div>                                                
     <pep-date [key]="'MaintenanceDate'" 
@@ -10,13 +12,7 @@
             [maxDateValue]="maintenance?.MaintenanceMaxDate"
             [xAlignment]="'left'" 
             (valueChange)="onMaintenanceValueChanged($event)" >
-    </pep-date>       
-    <!-- <pep-textbox [key]="'percentage'" 
-                 [label]="'AddonsManager_Maintenance_precents' | translate" 
-                 [type]="'percentage'" 
-                 [value]="maintenance?.AutomaticUpgradeAfterPercentage"
-                 (valueChange)="onMaintenanceValueChanged($event)">
-    </pep-textbox> -->
+    </pep-date>          
     <pep-select *ngIf= "isSupportUser" [key]="'percentage'"
                 [showTitle]="true" 
                 [label]="'AddonsManager_Maintenance_precents' | translate" 

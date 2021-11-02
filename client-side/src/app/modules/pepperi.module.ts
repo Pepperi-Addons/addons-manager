@@ -21,6 +21,7 @@ import { PepTextboxModule } from '@pepperi-addons/ngx-lib/textbox';
 import { PepListModule } from '@pepperi-addons/ngx-lib/list';
 import { PepMenuModule } from '@pepperi-addons/ngx-lib/menu';
 import { PepDialogModule } from '@pepperi-addons/ngx-lib/dialog';
+import { PepPageLayoutModule } from '@pepperi-addons/ngx-lib/page-layout';
 
 import {
     PepIconModule,
@@ -120,7 +121,8 @@ const pepperiComponentsModules = [
     PepMenuModule,
     PepTopBarModule,
     PepFormModule,
-    PepDialogModule
+    PepDialogModule,
+    PepPageLayoutModule
 ];
 
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';

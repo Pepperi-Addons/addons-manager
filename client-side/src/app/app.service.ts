@@ -216,13 +216,17 @@ export class AppService {
     }
 
     getMaintenance(func: Function) {
-        this.http.getPapiApiCall('/distributor').subscribe(res => func(res));
+         this.http.getPapiApiCall('/distributor').subscribe(res => func(res));
     }
 
     publishMaintenance(body:any,successFunc: Function)
     {
-        this.http.postPapiApiCall('/distributor',body).subscribe(res => successFunc(res));
-    //this.http.postHttpCall('/distributor',obj).subscribe(res => successFunc(res));
+         this.http.postPapiApiCall('/distributor',body).subscribe(res => successFunc(res));    
+    }
+
+     updateAllAddons(body:any,successFunc: Function)
+    {
+         this.http.postPapiApiCall('/distributor',body).subscribe(res => successFunc(res));    
     }
 
 }

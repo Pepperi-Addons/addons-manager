@@ -1,4 +1,4 @@
-<div class="plugin-page-container">
+<!-- <div class="plugin-page-container">
 
     <div class="header-content">
         <div class="content pep-border-bottom">
@@ -11,7 +11,7 @@
     </div>
 
     <div class="main-content" *ngIf="installing == false">
-        <div class="content">
+        <div class="content">           
             <mat-tab-group
             #tabGroup
             (selectedTabChange)="tabClick($event)"
@@ -32,7 +32,6 @@
                     </ng-template>
                 </mat-tab>
 
-                <!--mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}"-->
                 <mat-tab label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
                     <ng-template matTabContent>
                         <settings-cont [isSupportUser]="route?.queryParams?.support_user"></settings-cont>
@@ -42,5 +41,40 @@
         </div>
     </div>
 
-</div>
+</div> -->
 
+<pep-page-layout>
+    <ng-container pep-top-area>
+        <pep-top-bar [title] ="'AddonManager' | translate"></pep-top-bar>
+    </ng-container>
+
+    <ng-container pep-main-area *ngIf="installing == false">
+        <mat-tab-group
+            #tabGroup
+            (selectedTabChange)="tabClick($event)"
+            animationDuration="0ms"
+            class="fixed-header"
+        >
+            <mat-tab label="{{ 'AddonManager_Addons_List' | translate}}">
+                <ng-template matTabContent>
+                    <pep-list-cont (setAddonList)="setAddonList($event)" [addonsList]="addonsList"
+                    [apiEndpoint]="'addons'" [addonData]="addonData" (refreshSettingsTree)="refreshSettingsTree($event)"
+                    [isSupportUser]="route?.queryParams?.support_user"></pep-list-cont>
+                </ng-template>
+                </mat-tab>
+
+            <mat-tab label="{{ 'Permissions' | translate}}">
+                <ng-template matTabContent>
+                    <pep-list-cont [apiEndpoint]="'permissions'" [addonsList]="addonsList" [addonData]="addonData"></pep-list-cont>
+                </ng-template>
+            </mat-tab>
+
+            <!--mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}"-->
+            <mat-tab label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
+                <ng-template matTabContent>
+                    <settings-cont [isSupportUser]="route?.queryParams?.support_user"></settings-cont>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
+    </ng-container>
+</pep-page-layout>
