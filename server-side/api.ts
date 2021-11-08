@@ -50,6 +50,7 @@ export async function addons(client: Client, request: Request) {
     allAddons.forEach( addon => {
         const fullAddon: InstalledAddon = {
             Addon: addon,
+            PublicBaseURL: '',
             AdditionalData: '{}',
             UUID: '',
             SystemData: {}

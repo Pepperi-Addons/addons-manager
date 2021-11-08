@@ -8,8 +8,11 @@ class MyService {
   constructor(private client: Client) {
     this.papiClient = new PapiClient({
       baseURL: client.BaseURL,
-      token: client.OAuthAccessToken
-    });
+      token: client.OAuthAccessToken,
+      addonUUID: client.AddonUUID,
+      addonSecretKey: client.AddonSecretKey,
+      actionUUID: client["ActionUUID"]
+  });
   }
 
   installAddon(addon) {
@@ -28,6 +31,7 @@ class MyService {
     const addonEditor: InstalledAddon = {
       UUID: '',
       SystemData: {},
+      PublicBaseURL: '',
       AdditionalData: JSON.stringify(systemData),
       Addon: { UUID: 'a8f4698f-eb75-4a75-bdf6-1524eb9f6baf', SystemData: {} }
     };
@@ -68,7 +72,7 @@ class MyService {
   getAddonVersions(addonUUID): Promise<AddonVersion[]> {
     return this.papiClient.addons.versions.iter(
       {
-        where: `AddonUUID='${addonUUID}'`, orderBy: `CreationDateTime`
+        where: `AddonUUID='${addonUUID}'` //, orderBy: `CreationDateTime`
       }).toArray();
   }
 
