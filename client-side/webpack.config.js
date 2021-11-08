@@ -18,7 +18,7 @@ module.exports = (config, options, env) => {
     else {
         const mfConfig = {
             output: {
-              uniqueName: "managerEditor",
+              uniqueName: "manager_editor",
               publicPath: "auto"
             },
             optimization: {
@@ -28,8 +28,8 @@ module.exports = (config, options, env) => {
             plugins: [
               new ModuleFederationPlugin({
                 // remotes: {},
-                name: "managerEditor",
-                filename: "managerEditor.js",
+                name: "manager_editor",
+                filename: "manager_editor.js",
                 exposes: {
                     './AppModule': './src/app/app.module.ts'
                 },
