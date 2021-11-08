@@ -1,7 +1,7 @@
 {
   "AddonUUID": "bd629d5f-a7b4-4d03-9e7c-67865a6d82a9",
-  "AddonVersion": "0.4.1",
-  "DebugPort": 4400,
+  "AddonVersion": "0.4.2",
+  "DebugPort": 4500,
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
   "DefaultEditor": "addons_manager",
   "Endpoints": [
@@ -9,22 +9,6 @@
   ],
   "Editors": [
     "main"
-  ],
-  "Assets": [
-    "de.json",
-    "en.json",
-    "en.ngx-lib.json",
-    "es.json",
-    "fr.json",
-    "he.json",
-    "hu.json",
-    "it.json",
-    "ja.json",
-    "nl.json",
-    "pl.json",
-    "pt.json",
-    "ru.json",
-    "zh.json"
   ],
   "PublishConfig": {
     "ClientStack": "ng10",
@@ -36,7 +20,7 @@
       }
     ],
     "Dependencies": {
-      "papi": "9.5.469",
+      "papi": "9.5.467",
       "webapp": "16.55.133",
       "data_views": "0.0.34"
     }
