@@ -61,8 +61,7 @@ export class AppService {
         this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => successFunc(res), err => errorFunc(err));
     }
 
-    getAddOnsList(func: Function) {
-        debugger;
+    getAddOnsList(func: Function) {        
         const url = '/addons'; // http://localhost:4400/api
         this.http.getPapiApiCall(url).subscribe(res => func(res));
     }
