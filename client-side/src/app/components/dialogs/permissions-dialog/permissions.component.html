@@ -5,14 +5,14 @@
                 [label]="'AddonManager_SelectAnAddon' | translate"
                 [options]="installedAddons"
                 [emptyOption]="false"
-                (valueChange)="onValueChanged($event);"
+                (valueChange)="onValueChanged('AddonSelect', $event);"
             ></pep-select>
             <pep-select
             [label]="'AddonManager_SelectAnEditor' | translate"
                 [options]="addonEditors"
                 [key]="'EditorSelect'"
                 [emptyOption]="false"
-                (valueChange)="onValueChanged($event);"
+                (valueChange)="onValueChanged('EditorSelect', $event);"
             ></pep-select>
         </ng-container>
         <ng-container pep-dialog-actions class="pepperi-border-top">
