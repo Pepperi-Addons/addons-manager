@@ -157,23 +157,23 @@ export class PermissionsDialogComponent implements  OnDestroy {
     //     };
     // }
 
-    onValueChanged(e) {
-        switch (e.key) {
+    onValueChanged(key, value) {
+        switch (key) {
             case 'AddonSelect':
-                if ( e.value === '') {
+                if ( value === '') {
                     this.selectedAddon = this.selectedEditor = '';
                     this.addonEditors = [];
 
                 } else {
-                    const selAddon = this.installedAddons.filter(addon => addon.key === e.value);
-                    this.outputData.selectedAddon = this.selectedAddon = e.value === '' ? '' : selAddon[0];
+                    const selAddon = this.installedAddons.filter(addon => addon.key === value);
+                    this.outputData.selectedAddon = this.selectedAddon = value === '' ? '' : selAddon[0];
                     this.addonEditors = this.selectedAddon.Editors.map(editor => {
                         return { key: editor, value: editor.Description };
                     });
                 }
                 break;
             case 'EditorSelect':
-                this.outputData.selectedEditor = this.selectedEditor = e.value;
+                this.outputData.selectedEditor = this.selectedEditor = value;
                 break;
         }
     }
