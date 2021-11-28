@@ -201,10 +201,12 @@ export class _maintenance {
     
       }
     
-      updateAllAddons(){
-            const body = {};              
-            this.pluginService.updateAllAddons(body, res => {
-                if(res){    
+      //update all distributor addons to latest phased versions
+      updateAllAddons(){            
+            let content = this.translate.instant('AddonsManager_Maintenance_UpdateAllSuccess');
+
+            this.pluginService.updateAllAddons('bd629d5f-a7b4-4d03-9e7c-67865a6d82a9', res => {
+                if(res && res.success){    
                     this.maintenance.updateOnHoldSince = '';
                     if(new Date(this.maintenance.AutomaticUpgradeAfter) > new Date())//has a future date 
                     {
@@ -212,20 +214,27 @@ export class _maintenance {
 
                     }
 
-                    this.publishMaintenanceData();
+                    this.publishMaintenanceData(false);
 
-                    const modalTitle = null; //this.translate.instant('');
-                    const content = this.translate.instant('AddonsManager_Maintenance_UpdateAllSuccess');
-                    const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
-                    const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
-                    this.dialog.openDefaultDialog(data, config);
+                }else{
+                    if(res && res.errorCode == 0){
+                        content = this.translate.instant('AddonsManager_Maintenance_UpdateAllFailed');
+                    }else{
+                        content = this.translate.instant('AddonsManager_Maintenance_UpdateAllMaxAttemtExceeded');                        
+                    }
                 }
+
+                const modalTitle = null; //this.translate.instant('');
+                const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
+                const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+                this.dialog.openDefaultDialog(data, config);
+
             });
      
       }
 
 
-    publishMaintenanceData() {  
+    publishMaintenanceData(showModal = true) {  
         const obj = {
             'InternalID': this.distributor.InternalID || null,
             'UUID': this.distributor.UUID || null,            
@@ -240,12 +249,14 @@ export class _maintenance {
        this.pluginService.publishMaintenance(obj, res => {
            if(res){
 
-                this.setMaintenanceData(res.Maintenance);                
-                const modalTitle = null; //this.translate.instant('');
-                const content = this.translate.instant('Addon_SuccessfulOperation');
-                const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
-                const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
-                this.dialog.openDefaultDialog(data, config);
+                this.setMaintenanceData(res.Maintenance);
+                if(showModal){
+                    const modalTitle = null; //this.translate.instant('');
+                    const content = this.translate.instant('Addon_SuccessfulOperation');
+                    const data = new PepDialogData({title: modalTitle, content, actionButtons:[null]});
+                    const config = this.dialog.getDialogConfig({minWidth: '30rem'}, 'regular');
+                    this.dialog.openDefaultDialog(data, config);
+                }
            }
        });
     }

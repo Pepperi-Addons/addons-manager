@@ -80,6 +80,48 @@ class MyService {
     return this.papiClient.addons.versions.iter({ where: `Version='${version}' and Available='true'` }).toArray()[0];
   }
 
+  //update all distributor addons to latest phased versions
+  async updateAllAddons(body){
+    let executionObj : any;
+    executionObj = await this.papiClient.addons.api.uuid("00000000-0000-0000-0000-000000000a91").async()
+                         .file("installation").func("maintenanceJob").post('', body);
+    //call to audit data log with ExecutionUUID until task succeeded 
+    if(executionObj && executionObj.ExecutionUUID){      
+      return await this.pollExecution(this.papiClient,  executionObj.ExecutionUUID);
+    }else{
+      return {success: false};
+    }     
+  }
+
+  async pollExecution(papiClient: PapiClient, ExecutionUUID: string, interval = 1000, maxAttempts = 60, validate = (res) =>
+{
+	return res != null && (res.Status.Name === 'Failure' || res.Status.Name === 'Success');
+})
+{
+	let attempts = 0;
+
+	const executePoll = async (resolve, reject) =>
+	{
+		const result = await papiClient.get(`/audit_logs/${ExecutionUUID}`);
+		attempts++;
+
+		if (validate(result))
+		{
+			return resolve({"success" : result.Status.Name === 'Success',  "errorCode" : 0});
+		}
+		else if (maxAttempts && attempts === maxAttempts)
+		{			
+			return resolve({"success" : false, "errorCode" : 1});
+		}
+		else
+		{
+			setTimeout(executePoll, interval, resolve, reject);
+		}
+	};
+
+	return new Promise<any>(executePoll);
+}
+
   initDate(dateTimeStr) {
     const nineteenSeventy = new Date(1970, 0, 0);
     return new Date(dateTimeStr || nineteenSeventy).getTime();

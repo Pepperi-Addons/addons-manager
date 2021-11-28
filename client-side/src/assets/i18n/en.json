@@ -62,5 +62,7 @@
 	"AddonsManager_Maintenance_updateAllModalMessage" : "Please confirm updating the modules to the latest version",
 	"AddonsManager_Maintenance_updateAllModalTitle" : "Update all modules",
 	"AddonsManager_Maintenance_UpdateAllSuccess" : "All modules are up to date",	
+	"AddonsManager_Maintenance_UpdateAllFailed" : "Update modules failed, please try again later",	
+	"AddonsManager_Maintenance_UpdateAllMaxAttemtExceeded" : "Update modules failed, exceeded max attempts",
 	"AddonsManager_Maintenance_precents_not_valid": "Automatic updates after % field should containe values between 0 and 99"
 }

@@ -20,7 +20,7 @@
       }
     ],
     "Dependencies": {
-      "papi": "9.5.467",
+      "papi": "9.5.473",
       "webapp": "16.55.133",
       "data_views": "0.0.34"
     }
