@@ -205,7 +205,7 @@ export class _maintenance {
       updateAllAddons(){            
             let content = this.translate.instant('AddonsManager_Maintenance_UpdateAllSuccess');
 
-            this.pluginService.updateAllAddons('bd629d5f-a7b4-4d03-9e7c-67865a6d82a9', res => {
+            this.pluginService.updateAllAddons('bd629d5f-a7b4-4d03-9e7c-67865a6d82a9', res => {//get addon uuid from config
                 if(res && res.success){    
                     this.maintenance.updateOnHoldSince = '';
                     if(new Date(this.maintenance.AutomaticUpgradeAfter) > new Date())//has a future date 

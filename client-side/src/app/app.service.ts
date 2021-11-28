@@ -227,10 +227,10 @@ export class AppService {
 
     async updateAllAddons(addonUUID, successFunc: Function)
     {
-        //const url = `api/update_all_addons`;
+        //const url = `api/update_alladdons`;
         //await this.http.postPapiApiCall(url, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
         
-        await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_all_addons`, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
+        await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_alladdons`, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
         
         
     }

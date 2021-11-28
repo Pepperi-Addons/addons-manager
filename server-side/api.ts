@@ -138,7 +138,7 @@ export async function addon_versions(client: Client, request: Request) {
   return addonVersions;
 }
 
-export async function update_all_addons(client: Client, request: Request) {
+export async function update_alladdons(client: Client, request: Request) {
   const service = new MyService(client);
   const result = await service.updateAllAddons(request.body);  
   return result;
