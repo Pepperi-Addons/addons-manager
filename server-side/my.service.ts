@@ -72,7 +72,7 @@ class MyService {
   getAddonVersions(addonUUID): Promise<AddonVersion[]> {
     return this.papiClient.addons.versions.iter(
       {
-        where: `AddonUUID='${addonUUID}'` //, orderBy: `CreationDateTime`
+        where: `AddonUUID='${addonUUID}'` , page_size: 50, order_by: `CreationDateTime DESC`
       }).toArray();
   }
 
