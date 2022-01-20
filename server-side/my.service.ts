@@ -74,6 +74,12 @@ class MyService {
       {
         where: `AddonUUID='${addonUUID}'` , page_size: 50, order_by: `CreationDateTime DESC`
       }).toArray();
+
+      return this.papiClient.addons.versions.find(
+        {
+          where: `AddonUUID='${addonUUID}'` , page_size: 50, order_by: `CreationDateTime DESC`
+        }
+      )
   }
 
   getAddonVersion(version): Promise<AddonVersion> {
