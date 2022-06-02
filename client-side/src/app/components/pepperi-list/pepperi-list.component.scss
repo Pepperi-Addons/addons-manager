@@ -5,6 +5,19 @@
 }
 
 .listContainer {
+    height: inherit;
+    display: grid ;
+    grid-template-rows: 1fr;
+    gap: 2rem;
+}
+/*
+:host {
+    height: inherit;
+    // margin: 0 -0.75rem;
+    display: block;
+}
+
+.listContainer {
     width: 100%;
     height: inherit;
     display: grid;
@@ -29,13 +42,8 @@
     }
 }
 
-// ::ng-deep pep-list {
-//     .table-header{
-//         top: 0 !important;
-//     }
-// }
 ::ng-deep pep-top-bar {
     .content{
         min-height: 2.75rem;
     }
-}
+}*/

@@ -10,6 +10,7 @@ import { MaterialModule } from './modules/material.module';
 import { PepperiListContComponent } from './components/pepperi-list/pepperi-list.component';
 import { SettingsContComponent } from './components/settings/settings.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-list';
 // import { HttpClient } from '@angular/common/http';
 // import { MatCardModule } from '@angular/material/card';
 // import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -19,11 +20,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // import { MatInputModule } from '@angular/material/input';
 // import { MatSelectModule } from '@angular/material/select';
 // import { MatTabsModule } from '@angular/material/tabs';
+
 import { ChangeVersionDialogComponent } from './components/dialogs/change-version-dialog/change-version-dialog.component';
 import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
 import { PermissionsDialogComponent } from './components/dialogs/permissions-dialog/permissions.component';
 import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.component';
 // import { BroadcastService } from '@pepperi-addons/ngx-broadcast';
+import { AppService } from './app.service';
 
 @NgModule({
     declarations: [
@@ -51,9 +54,10 @@ import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.c
         // MatSelectModule,
         FormsModule,
         ReactiveFormsModule,
+        PepGenericListModule
     ],
     providers: [
-        // BroadcastService
+        AppService
     ],
     bootstrap: [AppComponent]
 })

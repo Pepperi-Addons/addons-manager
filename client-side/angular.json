@@ -25,10 +25,10 @@
             "sourceMap": false,
             "aot": true,
             "stylePreprocessorOptions": {
-                "includePaths": [
-                    "node_modules/@pepperi-addons",
-                    "node_modules"
-                ]
+              "includePaths": [
+                "node_modules/@pepperi-addons",
+                "node_modules"
+              ]
             },
             "assets": [
               "src/favicon.ico",
@@ -41,6 +41,9 @@
             ],
             "scripts": [
               "node_modules/quill/dist/quill.core.js"
+            ],
+            "styles": [
+              "src/styles.scss"
             ],
             "customWebpackConfig": {
               "path": "webpack.config.js",
@@ -93,18 +96,16 @@
             "browserTarget": "client-side:build"
           },
           "configurations": {
-            "Standalone": {
-            },
-            "SingleSpa": {
-            },
+            "Standalone": {},
+            "SingleSpa": {},
             "production": {
               "browserTarget": "client-side:build:production"
             },
             "development": {
-                "browserTarget": "client-side:build:development"
+              "browserTarget": "client-side:build:development"
             }
-           },
-        "defaultConfiguration": "development"
+          },
+          "defaultConfiguration": "development"
         }
       }
     }

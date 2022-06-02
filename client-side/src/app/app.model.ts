@@ -1,4 +1,4 @@
-
+import { ComparisionType } from './common/enums/comparision-type.enum';
 
 export class AddonsSearch {
     SortBy?: string;
@@ -59,6 +59,7 @@ export class InstalledAddon {
     AdditionalData: string;
     Hidden: string;
     LatestPhased?: any;
+    PhasedType?: ComparisionType;
     HasVersions?: any;
     constructor(uuid = '', addon: Addon = null, additionalData = '{}', systemData =  {Versions: []}) {
         this.UUID = uuid;

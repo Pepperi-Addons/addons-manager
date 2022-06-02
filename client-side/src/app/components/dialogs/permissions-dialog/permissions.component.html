@@ -1,5 +1,5 @@
 <div id="edit-dialog" class="dialog">
-    <pep-dialog [title]="'AddonManager_Add_Permission' | translate">
+   <pep-dialog [title]="'AddonManager_Add_Permission' | translate" [showClose]="true" (close)="onDialogClose()">
         <ng-container pep-dialog-content>
             <pep-select [key]="'AddonSelect'"
                 [label]="'AddonManager_SelectAnAddon' | translate"
@@ -18,6 +18,6 @@
         <ng-container pep-dialog-actions class="pepperi-border-top">
             <pep-button [value]="'Confirm' | translate" [disabled]="!(selectedAddon && selectedEditor)" [mat-dialog-close]="outputData"></pep-button>
         </ng-container>
-    </pep-dialog>
+    </pep-dialog> 
 </div>
 

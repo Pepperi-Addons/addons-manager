@@ -2,83 +2,97 @@ import { Injectable } from '@angular/core';
 import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { AddonsSearch } from './app.model';
-import { PepHttpService, PepSessionService} from '@pepperi-addons/ngx-lib'
+import { PepHttpService, PepSessionService, PepUtilitiesService, PepRowData } from '@pepperi-addons/ngx-lib'
+import { Observable, of, throwError } from 'rxjs';
+import { tap, share, finalize, catchError } from 'rxjs/operators';
+import { ComparisionType } from './common/enums/comparision-type.enum';
 
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class AppService {
-    subscription: any;
-    accessToken = '';
-    apiBaseURL = '';
-    svgIcons;
-    pluginUUID = '';
-    version = 'V1.0';
+    // subscription: any;
+    // accessToken = '';
+    // apiBaseURL = '';
+    // svgIcons;
+    // pluginUUID = '';
+    // version = 'V1.0';
+    private _addonsList: any[] = [];
+    private _pepRowDataAddons: PepRowData[] = [];
+    private _addonsList$: Observable<any>;
+    private _permissionList: any[] = [];
+    private _permissionList$: Observable<any>;
 
     constructor(
         private http: PepHttpService,
         private session: PepSessionService,
         // public userService: UserService,
+        private utilities: PepUtilitiesService,
         public dialog: MatDialog
     ) {
         // this.svgIcons = this.userService.svgIcons;
-}
+    }
 
-    getList(listType = '', ListCustomizationParams = '', listTabName = '', indexStart: number = 0
-    ,       indexEnd: number = 100, searchTxt: any = '', func = null, additionalFilter: string = '', showGlobalLoading: boolean = true
-    ,       useWebWorker: boolean = false, dateFilter: string = '') {
-		let self = this;
-		const body = JSON.stringify({
-			ListType: listType,
-			// ListCustomizationParams: '{"Prefix":"CodeJob","Path":"code_jobs","AdditionalApiNames":["ModificationDateTime","CreationDateTime"]}',
-			// ListTabName: '[GL#dff55bbc-a623-43be-ada5-b88173f56a48]ListView',
-			ListCustomizationParams,
-			ListTabName: listTabName,
-			IndexStart: indexStart,
-			IndexEnd: indexEnd,
-			OrderBy: 'CreationDateTime',
-			Ascending: false,
-			SearchText: typeof searchTxt ===  'object' ? searchTxt.Value : searchTxt,
-			SmartSearch: [],
-			AdditionalFilter: additionalFilter,
-			RetrieveCount: true,
-			DateFilter: dateFilter,
-			RetrieveDeleted: false
-		});
+    set addons(val: PepRowData[]) {
+        this._pepRowDataAddons = val;
+    }
 
-		// this.userService.httpPost(
-        this.http.postWapiApiCall( 'Service1.svc/v1/list/' + listType + '/Search', body).subscribe(res => func(res));
-	}
-
-	updateSystemData(body: any, successFunc, errorFunc = null) {
-		this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => successFunc(res),err => errorFunc(err));
-	}
+    get addons() {
+        return this._pepRowDataAddons;
+    }
+    /*
+        getList(listType = '', ListCustomizationParams = '', listTabName = '', indexStart: number = 0
+            , indexEnd: number = 100, searchTxt: any = '', func = null, additionalFilter: string = '', showGlobalLoading: boolean = true
+            , useWebWorker: boolean = false, dateFilter: string = '') {
+            let self = this;
+            const body = JSON.stringify({
+                ListType: listType,
+                // ListCustomizationParams: '{"Prefix":"CodeJob","Path":"code_jobs","AdditionalApiNames":["ModificationDateTime","CreationDateTime"]}',
+                // ListTabName: '[GL#dff55bbc-a623-43be-ada5-b88173f56a48]ListView',
+                ListCustomizationParams,
+                ListTabName: listTabName,
+                IndexStart: indexStart,
+                IndexEnd: indexEnd,
+                OrderBy: 'CreationDateTime',
+                Ascending: false,
+                SearchText: typeof searchTxt === 'object' ? searchTxt.Value : searchTxt,
+                SmartSearch: [],
+                AdditionalFilter: additionalFilter,
+                RetrieveCount: true,
+                DateFilter: dateFilter,
+                RetrieveDeleted: false
+            });
+    
+            // this.userService.httpPost(
+            this.http.postWapiApiCall('Service1.svc/v1/list/' + listType + '/Search', body).subscribe(res => func(res));
+        }
+    
+        updateSystemData(body: any, successFunc, errorFunc = null) {
+            this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => successFunc(res), err => errorFunc(err));
+        } */
 
     updateAdditionalData(additionalData: any, successFunc, errorFunc = null) {
         const body = ({
-          'Addon': {'UUID': this.pluginUUID},
-          'AdditionalData': JSON.stringify(additionalData)
+            'Addon': { 'UUID': '' },
+            'AdditionalData': JSON.stringify(additionalData)
         });
         this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => successFunc(res), err => errorFunc(err));
     }
 
-    getAddOnsList(func: Function) {        
-        const url = '/addons'; // http://localhost:4400/api
-        this.http.getPapiApiCall(url).subscribe(res => func(res));
-    }
-
     getInstalledAddOnsList(func: Function) {
-        this.http.getPapiApiCall('/addons/installed_addons').subscribe( res => func(res));
+        this.http.getPapiApiCall('/addons/installed_addons').subscribe(res => func(res));
     }
 
     getInstalledAddOn(uuid, func: Function) {
         this.http.getPapiApiCall(`/addons/installed_addons/${uuid}`)
-        .subscribe(res => func(res));
+            .subscribe(res => func(res));
 
     }
 
     isAllowInstallAddon(addonUUID: string, enableKey: string, func: Function) {
         if (enableKey && enableKey.length > 0) {
-            this.http.getPapiApiCall( '/company/flags/' + enableKey).subscribe(res => func(res));
+            this.http.getPapiApiCall('/company/flags/' + enableKey).subscribe(res => func(res));
         } else {
             func(true);
         }
@@ -98,7 +112,7 @@ export class AppService {
         } else {
             url = `/addons/installed_addons/${addonUUID}/${action}`;
         }
-        this.http.postPapiApiCall( url, body).subscribe(res => successFunc(res),  err => {});
+        this.http.postPapiApiCall(url, body).subscribe(res => successFunc(res), err => { });
 
 
         // if (version) {
@@ -124,23 +138,59 @@ export class AppService {
         this.http.getPapiApiCall(url).subscribe(res => func(res));
     }
 
-    getProfiles(func: Function) {
-        this.http.getPapiApiCall('/profiles').subscribe(res => func(res));
+    getProfiles(): Observable<any> {
+        return this.http.getPapiApiCall('/profiles');
+        //this.http.getPapiApiCall('/profiles').subscribe(res => func(res));
     }
 
-    getData(searchObject: AddonsSearch, successFunc, errorFunc) {
+    getAddonList(searchObject: AddonsSearch): Observable<any> {
+        if (this._addonsList.length) {
+            return of(this._addonsList);
+        } else if (this._addonsList$) {
+            return this._addonsList$;
+        } else {
+            const endpoint = searchObject.ListType;
+            const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
+            this._addonsList$ = this.http.postPapiApiCall(url, searchObject).pipe(
+                tap(res => {
+                    this._addonsList = res;
+                }),
+                catchError(err => {
+                    throw `Error while retrieving addons: ${err}`
+                }),
+                share(),
+                finalize(() => {
+                    this._addonsList$ = null;
+                }));
+            return this._addonsList$;
+        }
+    }
+
+    clearAddonList() {
+        this._addonsList = [];
+    }
+
+    getData(searchObject: AddonsSearch): Observable<any> {
+
+
         // this.userService.setShowLoading(true);
         const endpoint = searchObject.ListType;
 
         // --- Work live in sandbox upload api.js file to plugin folder
+        // const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
+        // this.http.postPapiApiCall(url, searchObject).subscribe(
+        //     res => successFunc(res), 
+        //     err => errorFunc(err));
         const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
-        this.http.postPapiApiCall(url, searchObject).subscribe(res => successFunc(res), err => errorFunc(err));
+        return this.http.postPapiApiCall(url, searchObject);
 
-        // // --- Work localhost
-        // const url = `http://localhost:4400/api/${endpoint}`;
-        // this.http.postHttpCall(url, searchObject).subscribe(
-        //     res => successFunc(res), error => errorFunc(error), () => {}
-        // );
+        // --- Work localhost
+        /*const url = `http://localhost:4400/api/${endpoint}`;
+        this.http.postHttpCall(url, searchObject).subscribe(
+            res => successFunc(res), error => errorFunc(error), () => {}
+        );*/
+        /*const url = `http://localhost:4400/api/${endpoint}`;
+         return this.http.postHttpCall(url, searchObject);*/
     }
 
     getAddonVersions(uuid, successFunc, errorFunc) {
@@ -152,41 +202,57 @@ export class AppService {
 
         // --- Work localhost
         const url = `http://localhost:4400/api/addon_versions`;
-        this.http.postHttpCall(url, {UUID: uuid}, { 'headers': {'Authorization': 'Bearer ' + this.session.getIdpToken() }}).subscribe(
+        this.http.postHttpCall(url, { UUID: uuid }, { 'headers': { 'Authorization': 'Bearer ' + this.session.getIdpToken() } }).subscribe(
             res => successFunc(res),
             error => errorFunc(error),
-            () => {}
+            () => { }
         );
 
     }
 
     getExecutionLog(executionUUID, callback) {
-              const url = `/audit_logs/${executionUUID}`;
-              this.http.getPapiApiCall(url).subscribe(res => callback(res));
+        const url = `/audit_logs/${executionUUID}`;
+        this.http.getPapiApiCall(url).subscribe(res => callback(res));
 
     }
 
     setSystemData(uuid, AutomaticUpgrade: boolean, callback) {
         const body = {
-            Addon: { UUID: uuid},
+            Addon: { UUID: uuid },
             AutomaticUpgrade
         };
         // this.userService.setShowLoading(true);
         this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => callback(res));
     }
 
-    getPermissionsList(profile, successFunc, errorFunc) {
-        if (profile){
-            const internalId = profile?.key ? profile?.key : profile?.source?.key;
-            const whereStr = `?where=Context.Name="AddonsPermissions" AND Context.Profile.InternalID=${internalId}`;
-            const url = `${this.apiBaseURL}/meta_data/data_views${whereStr}`;
-            this.http.getPapiApiCall(url).subscribe(res => successFunc(res), err => errorFunc(err));
+    getPermissionsList(profile, useExistingData: boolean): Observable<any> {
+        if (useExistingData) {
+            return of(this._permissionList);
+        } else {
+            if (this._permissionList$) {
+                return this._permissionList$;
+            } else {
+                const internalId = profile?.key ? profile.key : profile?.source?.key;
+                const whereStr = `?where=Context.Name="AddonsPermissions" AND Context.Profile.InternalID=${internalId}`;
+                const url = `/meta_data/data_views${whereStr}`;
+                this._permissionList$ = this.http.getPapiApiCall(url).pipe(
+                    tap(res => {
+                        this._permissionList = res;
+                    }),
+                    catchError(err => {
+                        throw `Error while retrieving permissions: ${err}`
+                    }),
+                    share(),
+                    finalize(() => {
+                        this._permissionList$ = null;
+                    }));
+                return this._permissionList$;
+            }
         }
-
     }
 
     createPermission(body, successFunc, errorFunc = null) {
-        const url = this.apiBaseURL + '/meta_data/data_views';
+        const url = '/meta_data/data_views';
         this.http.postPapiApiCall('/meta_data/data_views', body).subscribe(res => successFunc(res), err => errorFunc(err));
     }
 
@@ -217,23 +283,46 @@ export class AppService {
     }
 
     getMaintenance(func: Function) {
-         this.http.getPapiApiCall('/distributor').subscribe(res => func(res));
+        this.http.getPapiApiCall('/distributor').subscribe(res => func(res));
     }
 
-    publishMaintenance(body:any,successFunc: Function)
-    {
-         this.http.postPapiApiCall('/distributor',body).subscribe(res => successFunc(res));    
+    publishMaintenance(body: any, successFunc: Function) {
+        this.http.postPapiApiCall('/distributor', body).subscribe(res => successFunc(res));
     }
 
-    async updateAllAddons(addonUUID, successFunc: Function)
-    {
+    async updateAllAddons(addonUUID, successFunc: Function) {
         //const url = `api/update_alladdons`;
         //await this.http.postPapiApiCall(url, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
-        
-        await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_alladdons`, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
-        
-        
+
+        await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_alladdons`, { "InitiateDistributor": true }).subscribe(res => successFunc(res));
+
+
     }
+
+    getPhasedType(addon) {
+        const systemData = this.utilities.isJsonString(addon.Addon.SystemData) ? JSON.parse(addon.Addon.SystemData.toString()) : {};
+        const currentPhasedVer = systemData.CurrentPhasedVersion;
+        const installedVer = addon.Version;
+
+        if (currentPhasedVer && installedVer) {
+            const v1Octets = currentPhasedVer.split('.');
+            const v2Octets = installedVer.split('.');
+            const len = Math.min(v1Octets.length, v2Octets.length);
+
+            for (let i = 0; i < len; ++i) {
+                const num1 = parseInt(v1Octets[i], 10);
+                const num2 = parseInt(v2Octets[i], 10);
+                if (num1 > num2) return ComparisionType.BiggerThan;
+                if (num1 < num2) return ComparisionType.SmallerThan;
+            }
+
+            return v1Octets.length === v2Octets.length ? ComparisionType.EqualTo : (v1Octets.length < v2Octets.length ? ComparisionType.SmallerThan : ComparisionType.BiggerThan);
+        } else {
+            return ComparisionType.EqualTo;
+        }
+    }
+
+    
 
 }
 

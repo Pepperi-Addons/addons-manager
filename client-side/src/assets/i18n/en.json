@@ -39,6 +39,7 @@
 	"UpgradeLatest": "Upgrade (latest available)",
 	"NotInstalled": "Not Installed",
 	"UpdateAvailable": "(Update Available)",
+	"Unofficial": "(Unofficial)",
 	"Obsolete": "(Obsolete)",
 	"AddonsManager_ApiVersionNotSupported_Header": "Outdated API Version",
 	"AddonsManager_ApiVersionNotSupported_Body": "Your current API version is outdated, please contact support for assistance.",

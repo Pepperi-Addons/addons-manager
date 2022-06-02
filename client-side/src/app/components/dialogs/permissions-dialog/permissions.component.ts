@@ -113,6 +113,7 @@ export class PermissionsDialogComponent implements  OnDestroy {
         public translate: TranslateService
         ) {
         this.installedAddons = incoming.content.installedAddons;
+        console.log('incoming', incoming);
     }
 
     // pepperiSelectOnInit(compRef, inputs, outputs, key, options, initalValue = null) {
@@ -176,6 +177,10 @@ export class PermissionsDialogComponent implements  OnDestroy {
                 this.outputData.selectedEditor = this.selectedEditor = value;
                 break;
         }
+    }
+
+    onDialogClose() {
+        this.dialogRef.close();
     }
 
     ngOnDestroy() {
