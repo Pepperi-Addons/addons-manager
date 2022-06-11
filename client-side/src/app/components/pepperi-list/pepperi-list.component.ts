@@ -7,8 +7,9 @@ import {
   Component, EventEmitter, OnInit, Input, ComponentRef,
   ViewChild, Output, ChangeDetectorRef, ElementRef, ComponentFactoryResolver
 } from '@angular/core';
-import { async, of, Subscription, SubscriptionLike } from 'rxjs';
-import { map, first, catchError, switchMap, tap } from 'rxjs/operators';
+import { of, Subscription, SubscriptionLike, zip, forkJoin, interval, Observable } from 'rxjs';
+//import { forkJoin } from 'rxjs/index';
+import { map, first, last, catchError, switchMap, tap, share, mergeMap, takeWhile } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 // Internal Import
@@ -204,6 +205,7 @@ export class PepperiListContComponent {
       MinimumColumnWidth: 0
     }
   }
+
   private getDataViewField(name: string, title: string = name, type: DataViewFieldType = 'TextBox') {
     return {
       FieldID: name,
@@ -584,8 +586,6 @@ loadPage() {
               actions.push(action);
             }
           }
-
-         // return actions;
         } else if (data?.rows.length > 1 && data.selectionType !== 0) {
           const upgradeAllItems = this.getUpgradeAllAction(data.rows);
           if (upgradeAllItems.length) {
@@ -597,20 +597,17 @@ loadPage() {
             }
             actions.push(action);
           }
-
-          //return actions;
         } else if (data.selectionType === 0) {
           let upgradeAllItems: any[] = [];
-
+          let filteredAddons: any[] = [];
           if (data.rows.length) {
             //remove unselected items
-            const filteredAddons = this.pluginService.addons.filter(addon => addon.UUID && data.rows.indexOf(addon.UUID) === -1)
+            filteredAddons = this.pluginService.addons.filter(addon => addon.UUID && data.rows.indexOf(addon.UUID) === -1)
               .map(item => item.UUID);
-            upgradeAllItems = this.getUpgradeAllAction(filteredAddons);
           } else {
-            const filteredAddons = this.pluginService.addons.filter(addon => addon.UUID).map(item => item.UUID);
-            upgradeAllItems = this.getUpgradeAllAction(filteredAddons);
+            filteredAddons = this.pluginService.addons.filter(addon => addon.UUID).map(item => item.UUID);
           }
+          upgradeAllItems = this.getUpgradeAllAction(filteredAddons);
           if (upgradeAllItems.length) {
             const action = {
               title: this.translate.instant('Upgrade'),
@@ -620,9 +617,7 @@ loadPage() {
             }
             actions.push(action);
           }
-
-          //return actions;
-        } 
+        }
         return actions;
       }
     }
@@ -972,6 +967,7 @@ loadPage() {
 
         dataRowField.AdditionalValue = JSON.stringify(
           {
+            Value: addon[key],
             PhasedType: addon.PhasedType,
             LatestAvailable: true,
             HasVersions: addon.HasVersions === true,
@@ -1040,121 +1036,121 @@ loadPage() {
     };
     return dataRowField;
   }
-/*
-  isLatestPhased(addon) {
-    const systemData = this.utilities.isJsonString(addon.Addon.SystemData) ? JSON.parse(addon.Addon.SystemData.toString()) : {};
-    const latestPhasedVer = systemData.CurrentPhasedVersion;
-    const installedVer = addon.Version;
-
-    return installedVer === latestPhasedVer;
-  }
-
-  phasedType(addon): ComparisionType {
-    const systemData = this.utilities.isJsonString(addon.Addon.SystemData) ? JSON.parse(addon.Addon.SystemData.toString()) : {};
-    const currentPhasedVer = systemData.CurrentPhasedVersion;
-    const installedVer = addon.Version;
-
-    if (currentPhasedVer && installedVer) {
-      return this.compareVersions(currentPhasedVer, installedVer);
-    } else {
-      return ComparisionType.EqualTo;
-    }
-  }
-
-  compareVersions(v1: string, v2: string) {
-    const v1Octets = v1.split('.');
-    const v2Octets = v2.split('.');
-    const len = Math.min(v1Octets.length, v2Octets.length);
-
-    for (let i = 0; i < len; ++i) {
-      const num1 = parseInt(v1Octets[i], 10);
-      const num2 = parseInt(v2Octets[i], 10);
-      if (num1 > num2) return ComparisionType.BiggerThan;
-      if (num1 < num2) return ComparisionType.SmallerThan;
-    }
-
-    return v1Octets.length === v2Octets.length ? ComparisionType.EqualTo : (v1Octets.length < v2Octets.length ? ComparisionType.SmallerThan : ComparisionType.BiggerThan);
-  }
-
+  /*
+    isLatestPhased(addon) {
+      const systemData = this.utilities.isJsonString(addon.Addon.SystemData) ? JSON.parse(addon.Addon.SystemData.toString()) : {};
+      const latestPhasedVer = systemData.CurrentPhasedVersion;
+      const installedVer = addon.Version;
   
-    addNew() {
-   
-      if (this.addonsList.length === 0) {
-        this.pluginService.getAddOnsList(results => {
-          if (results) {
-            results.forEach((addon: Addon) => {
-              // if (this.installedAddonsList && this.installedAddonsList.find((ia: InstalledAddon) => ia.Addon.UUID === addon.UUID)) {
-              //     continue;
-              // }
-   
-              addon.SystemData = this.utilities.isJsonString(addon.SystemData) ? JSON.parse(addon.SystemData) : {};
-              this.addonsList.push(addon);
-            });
-          }
-   
-        });
+      return installedVer === latestPhasedVer;
+    }
+  
+    phasedType(addon): ComparisionType {
+      const systemData = this.utilities.isJsonString(addon.Addon.SystemData) ? JSON.parse(addon.Addon.SystemData.toString()) : {};
+      const currentPhasedVer = systemData.CurrentPhasedVersion;
+      const installedVer = addon.Version;
+  
+      if (currentPhasedVer && installedVer) {
+        return this.compareVersions(currentPhasedVer, installedVer);
+      } else {
+        return ComparisionType.EqualTo;
       }
-    } 
+    }
   
-  onActionClicked(e) {
+    compareVersions(v1: string, v2: string) {
+      const v1Octets = v1.split('.');
+      const v2Octets = v2.split('.');
+      const len = Math.min(v1Octets.length, v2Octets.length);
   
-    const selectData = this.pepList.getSelectedItemsData(true);
-    if (selectData.rows.length === 1) {
-  
-      const uid = selectData.rows[0];
-      const rowData = this.pepList.getItemDataByID(uid);
-      switch (e.source.key) {
-        case 'Edit': {
-          this.openEditDialog(rowData);
-          break;
-        }
-        case 'Install': {
-          this.editRow('install', 'InstallAddon_Header', { Text: 'InstallAddon_Body', Data: {} }, '', rowData);
-          break;
-        }
-        case 'Upgrade': {
-          this.editRow('upgrade', 'UpgradeAddon_Header', { Text: 'UpgradeAddon_Body', Data: {} }, '', rowData);
-          break;
-        }
-  
-        // case 'UpgradeLatest': {
-        //   const versions = rowData.Fields[2].OptionalValues.filter( version => version);
-        //   const latestCreationDate = Math.max.apply(null, versions.map(e =>  Date.parse(e.CreationDateTime)));
-        //   const latest = versions.filter(version => Date.parse(version.CreationDateTime) === latestCreationDate)[0];
-        //   this.editRow('upgrade', 'UpgradeAddon_Header', {Text: 'UpgradeAddon_Body', Data: {}}, latest.Version, rowData);
-        //   break;
-        // }
-        case 'ChangeVersion': {
-          this.openChangeVersionDialog(rowData);
-          break;
-        }
-        case 'Uninstall': {
-          this.editRow('uninstall', 'UninstallAddon_Header', { Text: 'UninstallAddon_Body', Data: {} }, '', rowData);
-          break;
-        }
-        case 'DeletePermission': {
-          this.showDeletePermissionModal(rowData);
-          break;
-        }
-  
-        default:
-          {
-            const actionButton = {
-              title: this.translate.instant('Close'),
-              callback: null,
-              className: '',
-              icon: null
-            };
-            const title = this.translate.instant('Alert');
-            const content = this.translate.instant('NotSupported');
-            const data = new PepDialogData({ title, content });
-            const config = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
-            this.dialog.openDefaultDialog(data, config);
-          }
+      for (let i = 0; i < len; ++i) {
+        const num1 = parseInt(v1Octets[i], 10);
+        const num2 = parseInt(v2Octets[i], 10);
+        if (num1 > num2) return ComparisionType.BiggerThan;
+        if (num1 < num2) return ComparisionType.SmallerThan;
       }
   
+      return v1Octets.length === v2Octets.length ? ComparisionType.EqualTo : (v1Octets.length < v2Octets.length ? ComparisionType.SmallerThan : ComparisionType.BiggerThan);
     }
-  } */
+  
+    
+      addNew() {
+     
+        if (this.addonsList.length === 0) {
+          this.pluginService.getAddOnsList(results => {
+            if (results) {
+              results.forEach((addon: Addon) => {
+                // if (this.installedAddonsList && this.installedAddonsList.find((ia: InstalledAddon) => ia.Addon.UUID === addon.UUID)) {
+                //     continue;
+                // }
+     
+                addon.SystemData = this.utilities.isJsonString(addon.SystemData) ? JSON.parse(addon.SystemData) : {};
+                this.addonsList.push(addon);
+              });
+            }
+     
+          });
+        }
+      } 
+    
+    onActionClicked(e) {
+    
+      const selectData = this.pepList.getSelectedItemsData(true);
+      if (selectData.rows.length === 1) {
+    
+        const uid = selectData.rows[0];
+        const rowData = this.pepList.getItemDataByID(uid);
+        switch (e.source.key) {
+          case 'Edit': {
+            this.openEditDialog(rowData);
+            break;
+          }
+          case 'Install': {
+            this.editRow('install', 'InstallAddon_Header', { Text: 'InstallAddon_Body', Data: {} }, '', rowData);
+            break;
+          }
+          case 'Upgrade': {
+            this.editRow('upgrade', 'UpgradeAddon_Header', { Text: 'UpgradeAddon_Body', Data: {} }, '', rowData);
+            break;
+          }
+    
+          // case 'UpgradeLatest': {
+          //   const versions = rowData.Fields[2].OptionalValues.filter( version => version);
+          //   const latestCreationDate = Math.max.apply(null, versions.map(e =>  Date.parse(e.CreationDateTime)));
+          //   const latest = versions.filter(version => Date.parse(version.CreationDateTime) === latestCreationDate)[0];
+          //   this.editRow('upgrade', 'UpgradeAddon_Header', {Text: 'UpgradeAddon_Body', Data: {}}, latest.Version, rowData);
+          //   break;
+          // }
+          case 'ChangeVersion': {
+            this.openChangeVersionDialog(rowData);
+            break;
+          }
+          case 'Uninstall': {
+            this.editRow('uninstall', 'UninstallAddon_Header', { Text: 'UninstallAddon_Body', Data: {} }, '', rowData);
+            break;
+          }
+          case 'DeletePermission': {
+            this.showDeletePermissionModal(rowData);
+            break;
+          }
+    
+          default:
+            {
+              const actionButton = {
+                title: this.translate.instant('Close'),
+                callback: null,
+                className: '',
+                icon: null
+              };
+              const title = this.translate.instant('Alert');
+              const content = this.translate.instant('NotSupported');
+              const data = new PepDialogData({ title, content });
+              const config = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
+              this.dialog.openDefaultDialog(data, config);
+            }
+        }
+    
+      }
+    } */
 
   editRow(action = '', dialogTitle = '', dialogContent = { Text: '', Data: {} },
     version = '', rowData = null, buttonsTitles = ['Confirm', 'Cancel']) {
@@ -1179,9 +1175,114 @@ loadPage() {
     });
   }
 
-  bulkUpgrade(rowsData) {
-    rowsData.forEach(item =>
-      this.editRow('upgrade', 'UpgradeAddon_Header', { Text: 'UpgradeAddon_Body', Data: {} }, '', item));
+  private bulkUpgrade(rowsData) {
+    const data = new PepDialogData({
+      title: this.translate.instant('UpgradeAllAddons_Header'),
+      content: this.translate.instant('UpgradeAllAddons_Body'),
+      actionsType: 'cancel-continue'
+    });
+    // console.log('rows  data', rowsData);
+    const config = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
+    this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(performAction => {
+      //  console.log('performAction', performAction);
+      if (performAction) {
+        this.executeBulkUpgrade(rowsData);
+        /*let upgradeRequests: any[] = [];
+        rowsData.forEach((item: any) => {
+          upgradeRequests.push(this.pluginService.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
+        });
+          console.log('aar', upgradeRequests);
+        forkJoin(
+          upgradeRequests
+        ).subscribe((res: any) => {
+          console.log('zip result', res);
+          res.forEach(item => console.log('zip result item', item));
+          //res.ExcecutionUUID || res.ExecutionUUID
+          let executionLogRequests: any[] = [];
+          //TEMP
+          //this.pluginService.getExec2().pipe(last()).subscribe(res => {
+          //  console.log('getExec 222', res);
+         // }); TEMP
+          res.forEach((item: any) => {
+            executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID))
+          });
+          console.log('executionLogRequests', executionLogRequests);
+          this.pluginService.getExecutionLog2(res[0].ExecutionUUID).pipe(first()).subscribe(res => {
+            console.log('get get get 2', res);
+            if (res?.Status && res.AuditInfo) {
+              if (res.Status === 'Failure' && res.AuditInfo.ErrorMessage?.inclodes('dependencies')) {
+
+              }
+            }
+          });
+        }, error => {
+          console.log('zip result error', error);
+        }); */
+      }
+    });
+
+  }
+
+  private executeBulkUpgrade(rowsData: any) {
+    console.log('executeBulkUpgrade', rowsData);
+    let upgradeRequests: any[] = [];
+    
+    let executionLogRequests: any[] = [];
+
+    rowsData.forEach((item: any) => {
+      upgradeRequests.push(this.pluginService.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
+    });
+    console.log('aar', upgradeRequests);
+    forkJoin(
+      upgradeRequests
+    ).subscribe((res: any) => {
+      //console.log('zip result', res);
+      res.forEach((item: any, index: number) => {
+        console.log('zip result item', item);
+        executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID));
+      });
+      //res.ExcecutionUUID || res.ExecutionUUID
+
+      /*TEMP Test
+      this.pluginService.getExec2().pipe(last()).subscribe(res => {
+        console.log('getExec 222', res);
+      }); TEMP*/
+      /* no need res.forEach((item: any) => {
+        executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID))
+      });*/
+      console.log('executionLogRequests', executionLogRequests);
+      //TODO - temporarily sending only first one instead of a list using forkJoin
+      this.pluginService.getExecutionLog2(res[0].ExecutionUUID).pipe(first()).subscribe(logRes => {
+        console.log('get get get 2', logRes);
+        let dependentAddons: any[] = [];
+        //TODO - foreach
+        if (logRes?.Status?.Name && logRes.AuditInfo?.ErrorMessage) {
+          console.log('pre includes', logRes.AuditInfo.ErrorMessage);
+          console.log('includes', logRes.AuditInfo.ErrorMessage.includes('dependencies'));
+          if (logRes.Status.Name === 'Failure' && logRes.AuditInfo.ErrorMessage.includes('dependencies')) {
+            let item = rowsData.find(item => item.Fields[0].AdditionalValue === logRes.AuditInfo?.Addon?.UUID);
+            console.log('logged item', item);
+            if (item) {
+              dependentAddons.push(item);
+            }
+          }
+        }
+        console.log('dependentAddons', dependentAddons);
+        if (dependentAddons.length) {
+          this.executeBulkUpgrade(dependentAddons);
+        }
+      });
+      /*forkJoin(
+        executionLogRequests
+      ).pipe(first()).subscribe(logs2 => {
+       // console.log('logs result', logs2);
+        logs2.forEach(item => console.log('logs result item', item));
+      }, error => {
+        console.log('log result error', error);
+      }) */
+    }, error => {
+      console.log('zip result error', error);
+    });
   }
 
   showDeletePermissionModal(rowData: any) {
@@ -1228,6 +1329,16 @@ loadPage() {
   /*
   chooseList(codeJobUUID = '', executionUUID = '', type = '') {
     return {};
+  } 
+
+  getExecutionLog(uuid): Observable<any> {
+    return interval(2000).pipe(
+      mergeMap(() => this.pluginService.getExecutionLog2(uuid)),
+      catchError(err => {
+        throw `Error while upgrading addon: ${err}`;
+      }),
+      takeWhile(res => res?.Status && res.Status.Name === 'InProgress')
+    )
   } */
 
   pollExecution(title, content, executionUUID) {
@@ -1286,7 +1397,7 @@ loadPage() {
         }
       });
     });
-  
+   
   }*/
 
   openChangeVersionDialog(rowData) {
@@ -1305,7 +1416,9 @@ loadPage() {
           const value = `${option?.Version}${option?.Phased ? ' | Phased' : ' | Available'}${option?.Description ? ' | ' + option?.Description : ''}`;
           options.push({ key: option?.Version, value });
         });
-        const currentVersionId = rowData.Fields[2].Value;
+        const jsonString = rowData.Fields.filter(field => field.ApiName === 'Version')[0].AdditionalValue;
+        const additionalValue = this.utilities.isJsonString(jsonString) ? JSON.parse(jsonString) : {};
+        const currentVersionId = additionalValue.Value;
         const data = new PepDialogData({
           content: {
             versions: options,
@@ -1335,9 +1448,6 @@ loadPage() {
               this.dialog.openDefaultDialog(data, config);
             }
           }
-
-
-
         })
       } else {
         const content = 'Versions not available';
@@ -1346,12 +1456,5 @@ loadPage() {
         this.dialog.openDefaultDialog(data, config);
       }
     }, error => { });
-
-
-
   }
-  /*
-    onListChanged(e) {
-    } */
-
 }

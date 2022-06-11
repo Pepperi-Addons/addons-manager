@@ -3,8 +3,9 @@ import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { AddonsSearch } from './app.model';
 import { PepHttpService, PepSessionService, PepUtilitiesService, PepRowData } from '@pepperi-addons/ngx-lib'
-import { Observable, of, throwError } from 'rxjs';
-import { tap, share, finalize, catchError } from 'rxjs/operators';
+import { Observable, of, throwError, interval, timer, Subject } from 'rxjs';
+import { tap, share, finalize, catchError, mergeMap, switchMap, repeatWhen, takeLast, switchMapTo, take, takeWhile, last, first, debounceTime, skipWhile, map, takeUntil } from 'rxjs/operators';
+
 import { ComparisionType } from './common/enums/comparision-type.enum';
 
 
@@ -114,18 +115,17 @@ export class AppService {
         }
         this.http.postPapiApiCall(url, body).subscribe(res => successFunc(res), err => { });
 
+    }
 
-        // if (version) {
-        //     body.Version = version
-        // }
-        // url = `http://localhost:4400/api/${action}`;
-        // return this.http.post(url, body, { 'headers': {'Authorization': 'Bearer ' + this.userService.getUserToken() }}).subscribe(
-        //         res => successFunc(res),
-        //         error => errorFunc(error),
-        //         () => this.userService.setShowLoading(false)
-        //     );
+    editAddon2(action: string, addonUUID: string, version: string): Observable<any> {
+        const body = {
+            UUID: addonUUID,
+            Version: version
+        };
+        console.log(`editAddon2 ${action}, addonUUID - ${addonUUID}, version - ${version}`);
+        const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` : `/addons/installed_addons/${addonUUID}/${action}`;
 
-
+        return this.http.postPapiApiCall(url, body);
     }
 
     deleteAddon(addonUUID: string, func: Function) {
@@ -213,7 +213,71 @@ export class AppService {
     getExecutionLog(executionUUID, callback) {
         const url = `/audit_logs/${executionUUID}`;
         this.http.getPapiApiCall(url).subscribe(res => callback(res));
+    }
 
+    getExec2() {
+        let source$ = of('3', '3', '3', '3', '4', '4');
+        return interval(6000).pipe(
+
+            switchMap(() => source$),
+            takeWhile(i => {
+                console.log('takeWhile test', i);
+                return i === '3';
+            }),
+            tap(ttt => console.log('tapping', ttt))
+
+        )/*.subscribe(res => {
+            console.log('take until', res);
+        })*/
+    }
+
+    getExecutionLog3(executionUUID: string, resolve, reject) {
+        this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);
+    }
+
+    getExecutionLog2(executionUUID) {
+         return timer(0, 2000).pipe(
+            switchMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
+            skipWhile(res => res && res.Status && res.Status.Name === 'InProgress')
+        )
+
+        /*
+        return timer(0, 3000).pipe(
+            mergeMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
+            takeWhile(res => {
+                console.log('takeWhile', res);
+
+                return res?.Status && res.Status.Name === 'InProgress'
+            })
+        )
+        */
+        /*return timer(0, 3000).pipe(
+            switchMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
+            takeWhile((res: any) => {
+                console.log('takeWhile', res);
+
+                return res?.Status && res.Status.Name === 'InProgress';
+            })
+        )*/
+        //  }
+        // console.log('obsr', res$);
+        // return res$;//.pipe(last());
+        // return rrr;
+
+        // return this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);
+        /* let rrr;
+         interval(2000).pipe(
+             mergeMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
+             takeWhile(res => {
+                 console.log('takeWhile', res);
+                 
+                 return res?.Status && res.Status.Name === 'InProgress'
+             }),
+             catchError(err => {
+                 throw `Error while upgrading addon: ${err}`;
+             })
+         )
+         return of(rrr); */
     }
 
     setSystemData(uuid, AutomaticUpgrade: boolean, callback) {
@@ -322,7 +386,7 @@ export class AppService {
         }
     }
 
-    
+
 
 }
 

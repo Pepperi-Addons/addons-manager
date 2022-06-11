@@ -1,6 +1,6 @@
 
 <div class="change-version-dialog dialog">
-    <pep-dialog [title]="'AddonsManager_ChangeVersion_Header' | translate">
+    <pep-dialog [title]="'AddonsManager_ChangeVersion_Header' | translate" [showClose]="true" (close)="onDialogClose()">
         <ng-container pep-dialog-content>
             <div style="padding: 0 .5rem;">
                 <p>{{'Current Version: ' + currentVersion}}</p>

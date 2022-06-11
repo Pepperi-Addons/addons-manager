@@ -9,18 +9,22 @@ import { EditDialogComponent } from '../edit-dialog/edit-dialog.component';
   templateUrl: './change-version-dialog.component.html',
   styleUrls: ['./change-version-dialog.component.scss']
 })
-export class ChangeVersionDialogComponent  {
+export class ChangeVersionDialogComponent {
 
   currentVersion;
   options = [];
   version;
-  outputData = {callback: null, version: ''};
+  outputData = { callback: null, version: '' };
 
   constructor(private fb: FormBuilder,
-      public dialogRef: MatDialogRef<EditDialogComponent>,
-      @Inject(MAT_DIALOG_DATA) public incoming: any) {
-      this.options = incoming.content.versions;
-      this.currentVersion = incoming.content.currentVersion;
+    public dialogRef: MatDialogRef<EditDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public incoming: any) {
+    this.options = incoming.content.versions;
+    this.currentVersion = incoming.content.currentVersion;
+  }
+
+  onDialogClose() {
+    this.dialogRef.close();
   }
 
 }
