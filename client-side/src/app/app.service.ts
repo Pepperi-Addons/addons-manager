@@ -236,31 +236,6 @@ export class AppService {
                     console.log('merged inner', res);
                     let dependentAddons: any[] = [];
                     res.forEach((item: any) => {
-                        /*this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID)
-                            .pipe(
-                                tap(addon => {
-                                    if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
-                                        if (addon.Status.Name === 'Failure') {
-                                            if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
-                                                const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
-                                                if (dependentAddon) {
-                                                    dependentAddons.push(dependentAddon);
-                                                }
-                                            } else {
-                                                upgradeResponse.Status = 1;
-                                                upgradeResponse.ErrorMessage = 'Some error';//this.translate.instant('Addon_FailedOperation');
-                                            }
-                                        }
-                                    } else {
-                                        //TODO - is it possible?
-                                    }
-                                    if (dependentAddons.length) {
-                                        upgradeResponse.ResendAddons = dependentAddons;
-                                    }
-                                   // return upgradeResponse;
-                                })
-                            ) */
-                        
                         this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID).subscribe(addon => {
                             if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
                                 if (addon.Status.Name === 'Failure') {
