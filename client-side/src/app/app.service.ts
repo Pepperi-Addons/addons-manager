@@ -224,7 +224,7 @@ export class AppService {
 
     bulkUpgrade(rowsData: any[]) {
         let upgradeRequests: any[] = [];
-        let executionLogRequests: any[] = [];
+        
         let upgradeResponse: { Status: number, ErrorMessage?: string, ResendAddons?: any[] } = { Status: 0 };
 
         rowsData.forEach((item: any) => {
@@ -234,9 +234,12 @@ export class AppService {
             .pipe(
                 switchMap(res => {
                     console.log('merged inner', res);
-                    let dependentAddons: any[] = [];
+                   // let dependentAddons: any[] = [];
+                    let executionLogRequests: any[] = [];
+                   // let forkiJoini: any[] = [];
                     res.forEach((item: any) => {
-                        this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID).subscribe(addon => {
+                        executionLogRequests.push(this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID));
+                        /*this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID).subscribe(addon => {
                             if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
                                 if (addon.Status.Name === 'Failure') {
                                     if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
@@ -255,10 +258,10 @@ export class AppService {
                             if (dependentAddons.length) {
                                 upgradeResponse.ResendAddons = dependentAddons;
                             }
-                        }); 
+                        }); */
                     });
-                   
-                    return of(upgradeResponse);
+                    return forkJoin(executionLogRequests);
+                   // return of(upgradeResponse);
                 })
             )
     }

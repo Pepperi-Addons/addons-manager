@@ -126,7 +126,7 @@ export class PepperiListContComponent {
     // this.addonData.Addon.UUID =  this.routeParams.snapshot.params.addon_uuid;
 
   }
-  
+
   ngOnInit(): void {
     if (this.apiEndpoint === 'permissions') {
       this.loadPermissions();
@@ -1185,7 +1185,7 @@ loadPage() {
       actionsType: 'cancel-continue'
     });
     const config = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
-    this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(performAction => {
+    this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(async performAction => {
       if (performAction) {
         // start
         /*
@@ -1231,20 +1231,52 @@ loadPage() {
     
         */
         // end
-        ////TODO = unrem this.executeBulkUpgrade2(rowsData);
+        const exceRes = await this.executeBulkUpgrade2(rowsData);
+        console.log('exceRes', exceRes);
       }
     });
   }
 
-  private executeBulkUpgrade2(rowsData: any[]) {
-    this.pluginService.bulkUpgrade(rowsData).subscribe(res => {
-    //  console.log('what the heck', res);
-      if (res?.ResendAddons?.length) {
-        this.executeBulkUpgrade2(res.ResendAddons);
+  private async executeBulkUpgrade2(rowsData: any[]) {
+    let upgradeResponse: { Status: number, ErrorMessage?: string, ResendAddons?: any[] } = { Status: 0 };
+    let dependentAddons: any[] = [];
+
+    this.pluginService.bulkUpgrade(rowsData).subscribe(addons => {
+      //  console.log('what the heck', res);
+      console.log('sub it all', addons);
+      if (addons?.length) {
+        addons.forEach((addon: any) => {
+          if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
+            if (addon.Status.Name === 'Failure') {
+              if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
+                const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
+                if (dependentAddon) {
+                  dependentAddons.push(dependentAddon);
+                }
+              } else {
+                upgradeResponse.Status = 1;
+                upgradeResponse.ErrorMessage = 'Some error';//this.translate.instant('Addon_FailedOperation');
+              }
+            }
+          } else {
+            //TODO - is it valid?
+          }
+        })
+        if (dependentAddons.length) {
+          return this.executeBulkUpgrade2(dependentAddons);
+        }
+
+        return Promise.resolve(upgradeResponse);
+      } else {
+        //handle ERROR
+        upgradeResponse.Status = 1;
+        upgradeResponse.ErrorMessage = 'no addons error';//this.translate.instant('Addon_FailedOperation');
+        return Promise.reject(upgradeResponse);
       }
-      //TODO - handler response
     }, error => {
-      //TODO
+      upgradeResponse.Status = 1;
+      upgradeResponse.ErrorMessage = error;
+      return Promise.reject(upgradeResponse);
     });
   }
 
@@ -1296,7 +1328,7 @@ loadPage() {
         }*/
       })
     }, error => {
-  //console.log('join result error', error);
+      //console.log('join result error', error);
       /* return {
          Status: 1,
          ErrorMessage: error
