@@ -31,16 +31,18 @@
 </div>-->
 <div class="listContainer">
     <pep-generic-list #glist [dataSource]="dataSource" [actions]="actions" [inline]="false" [showTopBar]="true"
-        [showSearch]="true" [supportSorting]="true" [uuidMapping]="'UUID'" [pager]="pager" [title]="topBarTitle | translate">
+        [showSearch]="true" [supportSorting]="true" [uuidMapping]="'UUID'" [pager]="pager"
+        [title]="topBarTitle | translate" [description]="listDescription | translate">
         <!-- <ng-container *ngIf="apiEndpoint === 'permissions'"> -->
-            <ng-container *ngIf="apiEndpoint === 'permissions'" right-buttons>
-                <pep-button class="pep-spacing-element" iconName="number_plus" styleType="strong" sizeType="md"
-                    (click)="openPermissionsDialog()">
-                </pep-button>
-            </ng-container>
-            <ng-container *ngIf="apiEndpoint === 'permissions'" left-buttons>
-                <pep-list-chooser [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
-            </ng-container>
+        <ng-container *ngIf="apiEndpoint === 'permissions'" right-buttons>
+            <pep-button class="pep-spacing-element" iconName="number_plus" styleType="strong" sizeType="md"
+                (click)="openPermissionsDialog()">
+            </pep-button>
+        </ng-container>
+        <ng-container *ngIf="apiEndpoint === 'permissions'" left-buttons>
+            <pep-list-chooser [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
+        </ng-container>
         <!-- </ng-container> -->
     </pep-generic-list>
 </div>
+

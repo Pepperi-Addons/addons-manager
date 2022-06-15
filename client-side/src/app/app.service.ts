@@ -3,7 +3,7 @@ import { MatDialogConfig, MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { AddonsSearch } from './app.model';
 import { PepHttpService, PepSessionService, PepUtilitiesService, PepRowData } from '@pepperi-addons/ngx-lib'
-import { Observable, of, throwError, interval, timer, Subject } from 'rxjs';
+import { Observable, of, throwError, interval, timer, Subject, forkJoin } from 'rxjs';
 import { tap, share, finalize, catchError, mergeMap, switchMap, repeatWhen, takeLast, switchMapTo, take, takeWhile, last, first, debounceTime, skipWhile, map, takeUntil } from 'rxjs/operators';
 
 import { ComparisionType } from './common/enums/comparision-type.enum';
@@ -122,7 +122,6 @@ export class AppService {
             UUID: addonUUID,
             Version: version
         };
-        console.log(`editAddon2 ${action}, addonUUID - ${addonUUID}, version - ${version}`);
         const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` : `/addons/installed_addons/${addonUUID}/${action}`;
 
         return this.http.postPapiApiCall(url, body);
@@ -215,69 +214,78 @@ export class AppService {
         this.http.getPapiApiCall(url).subscribe(res => callback(res));
     }
 
-    getExec2() {
-        let source$ = of('3', '3', '3', '3', '4', '4');
-        return interval(6000).pipe(
-
-            switchMap(() => source$),
-            takeWhile(i => {
-                console.log('takeWhile test', i);
-                return i === '3';
-            }),
-            tap(ttt => console.log('tapping', ttt))
-
-        )/*.subscribe(res => {
-            console.log('take until', res);
-        })*/
-    }
-
-    getExecutionLog3(executionUUID: string, resolve, reject) {
-        this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);
-    }
-
     getExecutionLog2(executionUUID) {
-         return timer(0, 2000).pipe(
-            switchMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
-            skipWhile(res => res && res.Status && res.Status.Name === 'InProgress')
-        )
-
-        /*
         return timer(0, 3000).pipe(
-            mergeMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
-            takeWhile(res => {
-                console.log('takeWhile', res);
-
-                return res?.Status && res.Status.Name === 'InProgress'
-            })
-        )
-        */
-        /*return timer(0, 3000).pipe(
             switchMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
-            takeWhile((res: any) => {
-                console.log('takeWhile', res);
+            takeWhile(res => res && res.Status && res.Status.Name === 'InProgress', true),
+            last()
+        )
+    }
 
-                return res?.Status && res.Status.Name === 'InProgress';
-            })
-        )*/
-        //  }
-        // console.log('obsr', res$);
-        // return res$;//.pipe(last());
-        // return rrr;
+    bulkUpgrade(rowsData: any[]) {
+        let upgradeRequests: any[] = [];
+        let executionLogRequests: any[] = [];
+        let upgradeResponse: { Status: number, ErrorMessage?: string, ResendAddons?: any[] } = { Status: 0 };
 
-        // return this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);
-        /* let rrr;
-         interval(2000).pipe(
-             mergeMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
-             takeWhile(res => {
-                 console.log('takeWhile', res);
-                 
-                 return res?.Status && res.Status.Name === 'InProgress'
-             }),
-             catchError(err => {
-                 throw `Error while upgrading addon: ${err}`;
-             })
-         )
-         return of(rrr); */
+        rowsData.forEach((item: any) => {
+            upgradeRequests.push(this.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
+        });
+        return forkJoin(upgradeRequests)
+            .pipe(
+                switchMap(res => {
+                    console.log('merged inner', res);
+                    let dependentAddons: any[] = [];
+                    res.forEach((item: any) => {
+                        /*this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID)
+                            .pipe(
+                                tap(addon => {
+                                    if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
+                                        if (addon.Status.Name === 'Failure') {
+                                            if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
+                                                const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
+                                                if (dependentAddon) {
+                                                    dependentAddons.push(dependentAddon);
+                                                }
+                                            } else {
+                                                upgradeResponse.Status = 1;
+                                                upgradeResponse.ErrorMessage = 'Some error';//this.translate.instant('Addon_FailedOperation');
+                                            }
+                                        }
+                                    } else {
+                                        //TODO - is it possible?
+                                    }
+                                    if (dependentAddons.length) {
+                                        upgradeResponse.ResendAddons = dependentAddons;
+                                    }
+                                   // return upgradeResponse;
+                                })
+                            ) */
+                        
+                        this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID).subscribe(addon => {
+                            if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
+                                if (addon.Status.Name === 'Failure') {
+                                    if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
+                                        const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
+                                        if (dependentAddon) {
+                                            dependentAddons.push(dependentAddon);
+                                        }
+                                    } else {
+                                        upgradeResponse.Status = 1;
+                                        upgradeResponse.ErrorMessage = 'Some error';//this.translate.instant('Addon_FailedOperation');
+                                    }
+                                }
+                            } else {
+                                //TODO - is it possible?
+                            }
+                            if (dependentAddons.length) {
+                                upgradeResponse.ResendAddons = dependentAddons;
+                            }
+                        }); 
+                    });
+                   
+                    return of(upgradeResponse);
+                })
+            )
     }
 
     setSystemData(uuid, AutomaticUpgrade: boolean, callback) {

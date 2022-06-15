@@ -4,12 +4,12 @@ import {
 } from '@pepperi-addons/ngx-lib';
 // Main Imports
 import {
-  Component, EventEmitter, OnInit, Input, ComponentRef,
+  Component, EventEmitter, OnInit, OnDestroy, Input, ComponentRef,
   ViewChild, Output, ChangeDetectorRef, ElementRef, ComponentFactoryResolver
 } from '@angular/core';
 import { of, Subscription, SubscriptionLike, zip, forkJoin, interval, Observable } from 'rxjs';
 //import { forkJoin } from 'rxjs/index';
-import { map, first, last, catchError, switchMap, tap, share, mergeMap, takeWhile } from 'rxjs/operators';
+import { map, first, last, catchError, switchMap, tap, share, mergeMap, takeWhile, take } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 // Internal Import
@@ -46,7 +46,6 @@ import { GridDataView, GridDataViewField, DataViewFieldType } from '@pepperi-add
 import { GenericListComponent } from '@pepperi-addons/ngx-composite-lib/generic-list';
 
 import Semver from "semver";
-
 
 
 @Component({
@@ -100,6 +99,7 @@ export class PepperiListContComponent {
   profilesList = [];
   selectedProfile = null;
   topBarTitle = '';
+  listDescription = '';
   noDataMsg = '';
   //
 
@@ -126,7 +126,7 @@ export class PepperiListContComponent {
     // this.addonData.Addon.UUID =  this.routeParams.snapshot.params.addon_uuid;
 
   }
-
+  
   ngOnInit(): void {
     if (this.apiEndpoint === 'permissions') {
       this.loadPermissions();
@@ -138,10 +138,11 @@ export class PepperiListContComponent {
   }
 
   ngOnChanges(changes) {
-    console.log('ngOnChanges');
+    //('ngOnChanges');
     /*  if (changes?.apiEndpoint?.currentValue)
         this.loadPage(); */
   }
+
   /*
     pepperiListOnInit(compRef: ComponentRef<any>, apiEndpoint) {
   
@@ -442,6 +443,7 @@ loadPage() {
 
   loadAddons() {
     this.noDataMsg = 'AddonManager_NoAddons';
+    this.listDescription = 'AddonManager_addonSecTitle';
     this.setAddonsDataSource();
     /*
     const searchObj: AddonsSearch = {
@@ -473,6 +475,7 @@ loadPage() {
 
   loadPermissions() {
     this.noDataMsg = 'AddonManager_NoPermissions';
+    this.listDescription = 'AddonManager_permissionSecTitle';
     this.pluginService.getProfiles().pipe(first()).subscribe(res => {
       this.profilesList = [];
       if (res) {
@@ -518,7 +521,7 @@ loadPage() {
   loadAddonActions() {
     this.actions = {
       get: async (data: PepSelectionData) => {
-        console.log('actions data', data);
+        //console.log('actions data', data);
         let actions: any[] = [];
 
         if (data?.rows.length === 1 && data.selectionType !== 0) {
@@ -548,7 +551,7 @@ loadPage() {
 
             if (!isInstalled) {
               const action = {
-                title: this.translate.instant('Install'),
+                title: this.translate.instant('Addonmanager_Action_Install'),
                 handler: async (params) => {
                   this.editRow('install', 'InstallAddon_Header', { Text: 'InstallAddon_Body', Data: {} }, '', rowData);
                 }
@@ -558,7 +561,7 @@ loadPage() {
 
             if (isInstalled && !isAddonSystemType) {
               const action = {
-                title: this.translate.instant('Uninstall'),
+                title: this.translate.instant('Addonmanager_Action_Uninstall'),
                 handler: async (params) => {
                   this.editRow('uninstall', 'UninstallAddon_Header', { Text: 'UninstallAddon_Body', Data: {} }, '', rowData);
                 }
@@ -568,7 +571,7 @@ loadPage() {
 
             if (isInstalled && phasedType === ComparisionType.BiggerThan) {
               const action = {
-                title: this.translate.instant('Upgrade'),
+                title: this.translate.instant('Addonmanager_Action_Upgrade'),
                 handler: async (params) => {
                   this.editRow('upgrade', 'UpgradeAddon_Header', { Text: 'UpgradeAddon_Body', Data: {} }, '', rowData);
                 }
@@ -590,7 +593,7 @@ loadPage() {
           const upgradeAllItems = this.getUpgradeAllAction(data.rows);
           if (upgradeAllItems.length) {
             const action = {
-              title: this.translate.instant('Upgrade'),
+              title: this.translate.instant('Addonmanager_Action_UpgradeAll'),
               handler: async (params) => {
                 this.bulkUpgrade(upgradeAllItems);
               }
@@ -610,7 +613,7 @@ loadPage() {
           upgradeAllItems = this.getUpgradeAllAction(filteredAddons);
           if (upgradeAllItems.length) {
             const action = {
-              title: this.translate.instant('Upgrade'),
+              title: this.translate.instant('Addonmanager_Action_UpgradeAll'),
               handler: async (params) => {
                 this.bulkUpgrade(upgradeAllItems);
               }
@@ -626,18 +629,18 @@ loadPage() {
   loadPermissionsActions() {
     this.actions = {
       get: async (data: PepSelectionData) => {
-        console.log('permission actions data', data);
+        //console.log('permission actions data', data);
         let actions: any[] = [];
 
         if (data?.rows.length === 1 && data.selectionType !== 0) {
           const uuid = data.rows[0];
           const rowData = this.genericlist.getItemById(uuid);
           // this.addonUUID = rowData.Fields[0].AdditionalValue;
-          console.log('permission rowData in', rowData);
+          //console.log('permission rowData in', rowData);
 
           if (rowData?.Fields) {
             const action = {
-              title: this.translate.instant('Delete'),
+              title: this.translate.instant('Addonmanager_Action_Delete'),
               handler: async (params) => {
                 this.showDeletePermissionModal(rowData);
               }
@@ -667,7 +670,7 @@ loadPage() {
           const additionalValue = this.utilities.isJsonString(jsonString) ? JSON.parse(jsonString) : {};
           phasedType = additionalValue.PhasedType;
           isInstalled = additionalValue.Installed;
-          console.log('found bigger than', isInstalled && phasedType === ComparisionType.BiggerThan);
+          //console.log('found bigger than', isInstalled && phasedType === ComparisionType.BiggerThan);
           if (isInstalled && phasedType === ComparisionType.BiggerThan) {
             upgradeItems.push(rowData);
           }
@@ -690,7 +693,7 @@ loadPage() {
       init: async (params: IPepGenericListParams) => {
         return (this.pluginService.getAddonList(searchObj).pipe(
           map(res => {
-            console.log('orig addons', res);
+            //console.log('orig addons', res);
             const data = new Array<PepRowData>();
             const userKeys = ['Name', 'Description', 'Version', 'LastUpgradeDateTime'];
             if (this.isSupportUser === 'true') {
@@ -708,7 +711,7 @@ loadPage() {
             if (params?.sorting) {
               this.sortGrid(data, params.sorting.sortBy, params.sorting.isAsc);
             }
-            console.log('addons', data);
+            //console.log('addons', data);
             this.pluginService.addons = data;
             return {
               dataView: this.getAddonsDataView(),
@@ -762,7 +765,7 @@ loadPage() {
             } else {
               this.existPermissions = [];
             }
-            console.log('permissions', data);
+            //console.log('permissions', data);
             return {
               dataView: this.getPermissionsDataView(),
               totalCount: data.length,
@@ -1181,107 +1184,123 @@ loadPage() {
       content: this.translate.instant('UpgradeAllAddons_Body'),
       actionsType: 'cancel-continue'
     });
-    // console.log('rows  data', rowsData);
     const config = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
     this.dialog.openDefaultDialog(data, config).afterClosed().subscribe(performAction => {
-      //  console.log('performAction', performAction);
       if (performAction) {
-        this.executeBulkUpgrade(rowsData);
-        /*let upgradeRequests: any[] = [];
-        rowsData.forEach((item: any) => {
-          upgradeRequests.push(this.pluginService.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
+        // start
+        /*
+        const executionDataDialog = new PepDialogData({
+          title: this.translate.instant('UpgradeAllAddons_Header'),
+          content: this.translate.instant('AddonInstallation_Progress'),
+          actionsType: 'custom',
+          showClose: false
         });
-          console.log('aar', upgradeRequests);
-        forkJoin(
-          upgradeRequests
-        ).subscribe((res: any) => {
-          console.log('zip result', res);
-          res.forEach(item => console.log('zip result item', item));
-          //res.ExcecutionUUID || res.ExecutionUUID
-          let executionLogRequests: any[] = [];
-          //TEMP
-          //this.pluginService.getExec2().pipe(last()).subscribe(res => {
-          //  console.log('getExec 222', res);
-         // }); TEMP
-          res.forEach((item: any) => {
-            executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID))
-          });
-          console.log('executionLogRequests', executionLogRequests);
-          this.pluginService.getExecutionLog2(res[0].ExecutionUUID).pipe(first()).subscribe(res => {
-            console.log('get get get 2', res);
-            if (res?.Status && res.AuditInfo) {
-              if (res.Status === 'Failure' && res.AuditInfo.ErrorMessage?.inclodes('dependencies')) {
-
-              }
+        const executionConfigDialog = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
+        const dialogRef = this.dialog.openDefaultDialog(executionDataDialog, executionConfigDialog);
+        this.executeBulkUpgrade(rowsData); 
+        //TODO - change dialog content with result
+        const interval = window.setInterval(() => {
+          this.pluginService.getExecutionLog(executionUUID, logRes => {
+            if (dialogRef) {
+              dialogRef
+                .afterClosed()
+                .subscribe(result => {
+                  window.clearInterval(interval);
+                })
+            }
+            if (logRes && logRes.Status && logRes.Status.Name !== 'InProgress') {
+              const content = logRes.Status.ID
+                ? `${this.translate.instant('Addon_SuccessfulOperation')}<br><br><br><br>`
+                : `${this.translate.instant('Addon_FailedOperation')}<span>${logRes.AuditInfo.ErrorMessage}</span><br><br>`;
+              const actionButton = {
+                title: this.translate.instant('Close'),
+                callback: null,
+                className: '',
+                icon: null
+              };
+              dialogRef.componentInstance.data.actionButtons = [actionButton];
+              dialogRef.componentInstance.data.content = content;
+              this.pluginService.clearAddonList();
+              this.loadAddons();
+              this.refreshSettingsTree.emit();
+              window.clearInterval(interval);
+    
             }
           });
-        }, error => {
-          console.log('zip result error', error);
-        }); */
+        }, 2000);
+    
+        */
+        // end
+        ////TODO = unrem this.executeBulkUpgrade2(rowsData);
       }
     });
+  }
 
+  private executeBulkUpgrade2(rowsData: any[]) {
+    this.pluginService.bulkUpgrade(rowsData).subscribe(res => {
+    //  console.log('what the heck', res);
+      if (res?.ResendAddons?.length) {
+        this.executeBulkUpgrade2(res.ResendAddons);
+      }
+      //TODO - handler response
+    }, error => {
+      //TODO
+    });
   }
 
   private executeBulkUpgrade(rowsData: any) {
-    console.log('executeBulkUpgrade', rowsData);
     let upgradeRequests: any[] = [];
-    
     let executionLogRequests: any[] = [];
+    let upgradeResponse: { Status: number, ErrorMessage?: string } = { Status: 0 };
 
     rowsData.forEach((item: any) => {
       upgradeRequests.push(this.pluginService.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
     });
-    console.log('aar', upgradeRequests);
     forkJoin(
       upgradeRequests
     ).subscribe((res: any) => {
-      //console.log('zip result', res);
-      res.forEach((item: any, index: number) => {
-        console.log('zip result item', item);
-        executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID));
+      res.forEach((item: any) => {
+        executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID));
       });
-      //res.ExcecutionUUID || res.ExecutionUUID
-
-      /*TEMP Test
-      this.pluginService.getExec2().pipe(last()).subscribe(res => {
-        console.log('getExec 222', res);
-      }); TEMP*/
-      /* no need res.forEach((item: any) => {
-        executionLogRequests.push(this.pluginService.getExecutionLog2(item.ExecutionUUID))
-      });*/
-      console.log('executionLogRequests', executionLogRequests);
-      //TODO - temporarily sending only first one instead of a list using forkJoin
-      this.pluginService.getExecutionLog2(res[0].ExecutionUUID).pipe(first()).subscribe(logRes => {
-        console.log('get get get 2', logRes);
-        let dependentAddons: any[] = [];
-        //TODO - foreach
-        if (logRes?.Status?.Name && logRes.AuditInfo?.ErrorMessage) {
-          console.log('pre includes', logRes.AuditInfo.ErrorMessage);
-          console.log('includes', logRes.AuditInfo.ErrorMessage.includes('dependencies'));
-          if (logRes.Status.Name === 'Failure' && logRes.AuditInfo.ErrorMessage.includes('dependencies')) {
-            let item = rowsData.find(item => item.Fields[0].AdditionalValue === logRes.AuditInfo?.Addon?.UUID);
-            console.log('logged item', item);
-            if (item) {
-              dependentAddons.push(item);
-            }
-          }
-        }
-        console.log('dependentAddons', dependentAddons);
-        if (dependentAddons.length) {
-          this.executeBulkUpgrade(dependentAddons);
-        }
-      });
-      /*forkJoin(
+      forkJoin(
         executionLogRequests
-      ).pipe(first()).subscribe(logs2 => {
-       // console.log('logs result', logs2);
-        logs2.forEach(item => console.log('logs result item', item));
+      ).subscribe(logRes => {
+        //TOFO - tap to manage data and return observable with status    
+        let dependentAddons: any[] = [];
+        logRes.forEach((addon: any) => {
+          if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
+            if (addon.Status.Name === 'Failure') {
+              if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
+                const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
+                if (dependentAddon) {
+                  dependentAddons.push(dependentAddon);
+                }
+              } else {
+                upgradeResponse.Status = 1;
+                upgradeResponse.ErrorMessage = this.translate.instant('Addon_FailedOperation');
+              }
+            }
+          } else {
+            //TODO - is it possible?
+          }
+        });
+        /*if (dependentAddons.length) {
+          upgradeResponse = this.executeBulkUpgrade(dependentAddons);
+        }     
+        return Promise.resolve(upgradeResponse);  */
       }, error => {
-        console.log('log result error', error);
-      }) */
+        //console.log('log result error', error);
+        /*return {
+          Status: 1,
+          ErrorMessage: error
+        }*/
+      })
     }, error => {
-      console.log('zip result error', error);
+  //console.log('join result error', error);
+      /* return {
+         Status: 1,
+         ErrorMessage: error
+       }*/
     });
   }
 
