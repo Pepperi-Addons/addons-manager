@@ -13,12 +13,6 @@ import { ComparisionType } from './common/enums/comparision-type.enum';
     providedIn: 'root'
 })
 export class AppService {
-    // subscription: any;
-    // accessToken = '';
-    // apiBaseURL = '';
-    // svgIcons;
-    // pluginUUID = '';
-    // version = 'V1.0';
     private _addonsList: any[] = [];
     private _pepRowDataAddons: PepRowData[] = [];
     private _addonsList$: Observable<any>;
@@ -28,11 +22,10 @@ export class AppService {
     constructor(
         private http: PepHttpService,
         private session: PepSessionService,
-        // public userService: UserService,
         private utilities: PepUtilitiesService,
         public dialog: MatDialog
     ) {
-        // this.svgIcons = this.userService.svgIcons;
+        //
     }
 
     set addons(val: PepRowData[]) {
@@ -42,37 +35,7 @@ export class AppService {
     get addons() {
         return this._pepRowDataAddons;
     }
-    /*
-        getList(listType = '', ListCustomizationParams = '', listTabName = '', indexStart: number = 0
-            , indexEnd: number = 100, searchTxt: any = '', func = null, additionalFilter: string = '', showGlobalLoading: boolean = true
-            , useWebWorker: boolean = false, dateFilter: string = '') {
-            let self = this;
-            const body = JSON.stringify({
-                ListType: listType,
-                // ListCustomizationParams: '{"Prefix":"CodeJob","Path":"code_jobs","AdditionalApiNames":["ModificationDateTime","CreationDateTime"]}',
-                // ListTabName: '[GL#dff55bbc-a623-43be-ada5-b88173f56a48]ListView',
-                ListCustomizationParams,
-                ListTabName: listTabName,
-                IndexStart: indexStart,
-                IndexEnd: indexEnd,
-                OrderBy: 'CreationDateTime',
-                Ascending: false,
-                SearchText: typeof searchTxt === 'object' ? searchTxt.Value : searchTxt,
-                SmartSearch: [],
-                AdditionalFilter: additionalFilter,
-                RetrieveCount: true,
-                DateFilter: dateFilter,
-                RetrieveDeleted: false
-            });
     
-            // this.userService.httpPost(
-            this.http.postWapiApiCall('Service1.svc/v1/list/' + listType + '/Search', body).subscribe(res => func(res));
-        }
-    
-        updateSystemData(body: any, successFunc, errorFunc = null) {
-            this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => successFunc(res), err => errorFunc(err));
-        } */
-
     updateAdditionalData(additionalData: any, successFunc, errorFunc = null) {
         const body = ({
             'Addon': { 'UUID': '' },
@@ -98,31 +61,14 @@ export class AppService {
             func(true);
         }
     }
-
-    editAddon(action = '', addonUUID = null, successFunc: Function = null, errorFunc = null, version = '') {
-        // this.userService.setShowLoading(true);
-        // const ver = action === 'upgrade' ? `/${version}` : '' ;
+   
+    editAddon(action: string, addonUUID: string, version: string): Observable<any> {
         const body = {
             UUID: addonUUID,
             Version: version
         };
-        let url = '';
-        if (version) {
-            url = `/addons/installed_addons/${addonUUID}/${action}/${version}`;
-            body.Version = version;
-        } else {
-            url = `/addons/installed_addons/${addonUUID}/${action}`;
-        }
-        this.http.postPapiApiCall(url, body).subscribe(res => successFunc(res), err => { });
-
-    }
-
-    editAddon2(action: string, addonUUID: string, version: string): Observable<any> {
-        const body = {
-            UUID: addonUUID,
-            Version: version
-        };
-        const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` : `/addons/installed_addons/${addonUUID}/${action}`;
+        const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` : 
+            `/addons/installed_addons/${addonUUID}/${action}`;
 
         return this.http.postPapiApiCall(url, body);
     }
@@ -170,16 +116,13 @@ export class AppService {
     }
 
     getData(searchObject: AddonsSearch): Observable<any> {
-
-
-        // this.userService.setShowLoading(true);
         const endpoint = searchObject.ListType;
-
         // --- Work live in sandbox upload api.js file to plugin folder
         // const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
         // this.http.postPapiApiCall(url, searchObject).subscribe(
         //     res => successFunc(res), 
         //     err => errorFunc(err));
+
         const url = `/addons/api/${searchObject.UUID}/api/${endpoint}`;
         return this.http.postPapiApiCall(url, searchObject);
 
@@ -209,59 +152,33 @@ export class AppService {
 
     }
 
-    getExecutionLog(executionUUID, callback) {
-        const url = `/audit_logs/${executionUUID}`;
-        this.http.getPapiApiCall(url).subscribe(res => callback(res));
+    getExecutionLog(executionUUID) {
+        return this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);       
     }
 
-    getExecutionLog2(executionUUID) {
-        return timer(0, 3000).pipe(
-            switchMap(() => this.http.getPapiApiCall(`/audit_logs/${executionUUID}`)),
-            takeWhile(res => res && res.Status && res.Status.Name === 'InProgress', true),
-            last()
-        )
+    geCompletedExecutionStatus(executionUUID) {
+        return timer(0, 3000)
+            .pipe(
+                switchMap(() => this.getExecutionLog(executionUUID)),
+                takeWhile(res => res && res.Status && res.Status.Name === 'InProgress', true),
+                last()
+            )
     }
 
-    bulkUpgrade(rowsData: any[]) {
+    bulkUpgrade(addons: any[]) {
         let upgradeRequests: any[] = [];
-        
-        let upgradeResponse: { Status: number, ErrorMessage?: string, ResendAddons?: any[] } = { Status: 0 };
 
-        rowsData.forEach((item: any) => {
-            upgradeRequests.push(this.editAddon2('upgrade', item.Fields[0].AdditionalValue, ''))
+        addons.forEach((addon: any) => {
+            upgradeRequests.push(this.editAddon('upgrade', addon.Fields[0].AdditionalValue, ''))
         });
         return forkJoin(upgradeRequests)
             .pipe(
-                switchMap(res => {
-                    console.log('merged inner', res);
-                   // let dependentAddons: any[] = [];
+                switchMap(res => {                    
                     let executionLogRequests: any[] = [];
-                   // let forkiJoini: any[] = [];
                     res.forEach((item: any) => {
-                        executionLogRequests.push(this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID));
-                        /*this.getExecutionLog2(item.ExecutionUUID || item.ExcecutionUUID).subscribe(addon => {
-                            if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
-                                if (addon.Status.Name === 'Failure') {
-                                    if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
-                                        const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
-                                        if (dependentAddon) {
-                                            dependentAddons.push(dependentAddon);
-                                        }
-                                    } else {
-                                        upgradeResponse.Status = 1;
-                                        upgradeResponse.ErrorMessage = 'Some error';//this.translate.instant('Addon_FailedOperation');
-                                    }
-                                }
-                            } else {
-                                //TODO - is it possible?
-                            }
-                            if (dependentAddons.length) {
-                                upgradeResponse.ResendAddons = dependentAddons;
-                            }
-                        }); */
+                        executionLogRequests.push(this.geCompletedExecutionStatus(item.ExecutionUUID || item.ExcecutionUUID));
                     });
                     return forkJoin(executionLogRequests);
-                   // return of(upgradeResponse);
                 })
             )
     }
@@ -270,8 +187,7 @@ export class AppService {
         const body = {
             Addon: { UUID: uuid },
             AutomaticUpgrade
-        };
-        // this.userService.setShowLoading(true);
+        };        
         this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => callback(res));
     }
 
@@ -313,23 +229,10 @@ export class AppService {
         dialogConfig.maxHeight = dlgMaxHeight;
         dialogConfig.height = dlgHeight;
         dialogConfig.minWidth = dlgMinWidth;
-        // dialogConfig.direction = this.isRTLlang ? 'rtl' : 'ltr';
         dialogConfig.disableClose = false;
-        dialogConfig.autoFocus = false;
-
-        // dialogConfig.scrollStrategy = this.overlay.scrollStrategies.noop();
-
+        dialogConfig.autoFocus = false;       
         dialogConfig.data = data;
-        dialogConfig.panelClass = ['pepperi-dialog', panelClass];
-
-        // const dialogRef = this.dialog.open(GlobalDialogComponent, dialogConfig);
-
-        // dialogRef.afterClosed().subscribe(result => {
-        //     if (result && result.callback) {
-        //         result.callback(result);
-        //     }
-        // });
-
+        dialogConfig.panelClass = ['pepperi-dialog', panelClass];       
     }
 
     getMaintenance(func: Function) {
@@ -340,13 +243,8 @@ export class AppService {
         this.http.postPapiApiCall('/distributor', body).subscribe(res => successFunc(res));
     }
 
-    async updateAllAddons(addonUUID, successFunc: Function) {
-        //const url = `api/update_alladdons`;
-        //await this.http.postPapiApiCall(url, {"InitiateDistributor": true}).subscribe(res => successFunc(res));
-
+    async updateAllAddons(addonUUID, successFunc: Function) {       
         await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_alladdons`, { "InitiateDistributor": true }).subscribe(res => successFunc(res));
-
-
     }
 
     getPhasedType(addon) {
@@ -371,8 +269,6 @@ export class AppService {
             return ComparisionType.EqualTo;
         }
     }
-
-
 
 }
 
