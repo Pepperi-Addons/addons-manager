@@ -24,6 +24,7 @@ import { PepGenericListModule } from '@pepperi-addons/ngx-composite-lib/generic-
 import { ChangeVersionDialogComponent } from './components/dialogs/change-version-dialog/change-version-dialog.component';
 import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
 import { PermissionsDialogComponent } from './components/dialogs/permissions-dialog/permissions.component';
+import { UpgradeAllDialogComponent } from './components/dialogs/upgrade-all-dialog/upgrade-all-dialog.component';
 import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.component';
 // import { BroadcastService } from '@pepperi-addons/ngx-broadcast';
 import { AppService } from './app.service';
@@ -36,6 +37,7 @@ import { AppService } from './app.service';
         EditDialogComponent,
         ChangeVersionDialogComponent,
         PermissionsDialogComponent,
+        UpgradeAllDialogComponent,
         PepperiTableComponent
     ],
     imports: [

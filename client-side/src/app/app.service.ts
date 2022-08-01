@@ -8,6 +8,9 @@ import { tap, share, finalize, catchError, mergeMap, switchMap, repeatWhen, take
 
 import { ComparisionType } from './common/enums/comparision-type.enum';
 
+class Customer {
+
+}
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +21,22 @@ export class AppService {
     private _addonsList$: Observable<any>;
     private _permissionList: any[] = [];
     private _permissionList$: Observable<any>;
+    //TEMP
 
+    private _subject = new Subject<Customer>();
+    readonly customer$ = this._subject.asObservable();
+
+    getCustomer(customerId: string) {
+        return this.http.getPapiApiCall(`/api/customer/${customerId}`)
+            .pipe(
+                tap((res: Customer) => {
+                    this._subject.next(res);
+                })
+            )
+    }
+
+
+    //TEMP
     constructor(
         private http: PepHttpService,
         private session: PepSessionService,
@@ -35,7 +53,7 @@ export class AppService {
     get addons() {
         return this._pepRowDataAddons;
     }
-    
+
     updateAdditionalData(additionalData: any, successFunc, errorFunc = null) {
         const body = ({
             'Addon': { 'UUID': '' },
@@ -61,13 +79,13 @@ export class AppService {
             func(true);
         }
     }
-   
+
     editAddon(action: string, addonUUID: string, version: string): Observable<any> {
         const body = {
             UUID: addonUUID,
             Version: version
         };
-        const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` : 
+        const url = version ? `/addons/installed_addons/${addonUUID}/${action}/${version}` :
             `/addons/installed_addons/${addonUUID}/${action}`;
 
         return this.http.postPapiApiCall(url, body);
@@ -153,15 +171,14 @@ export class AppService {
     }
 
     getExecutionLog(executionUUID) {
-        return this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);       
+        return this.http.getPapiApiCall(`/audit_logs/${executionUUID}`);
     }
 
     geCompletedExecutionStatus(executionUUID) {
         return timer(0, 3000)
             .pipe(
                 switchMap(() => this.getExecutionLog(executionUUID)),
-                takeWhile(res => res && res.Status && res.Status.Name === 'InProgress', true),
-                last()
+                takeWhile(res => res && res.Status && res.Status.Name === 'InProgress', true)                
             )
     }
 
@@ -169,11 +186,11 @@ export class AppService {
         let upgradeRequests: any[] = [];
 
         addons.forEach((addon: any) => {
-            upgradeRequests.push(this.editAddon('upgrade', addon.Fields[0].AdditionalValue, ''))
+            upgradeRequests.push(this.editAddon('upgrade', addon.Data.Fields[0].AdditionalValue, ''))
         });
         return forkJoin(upgradeRequests)
             .pipe(
-                switchMap(res => {                    
+                switchMap(res => {
                     let executionLogRequests: any[] = [];
                     res.forEach((item: any) => {
                         executionLogRequests.push(this.geCompletedExecutionStatus(item.ExecutionUUID || item.ExcecutionUUID));
@@ -187,7 +204,7 @@ export class AppService {
         const body = {
             Addon: { UUID: uuid },
             AutomaticUpgrade
-        };        
+        };
         this.http.postPapiApiCall('/addons/installed_addons', body).subscribe(res => callback(res));
     }
 
@@ -230,9 +247,9 @@ export class AppService {
         dialogConfig.height = dlgHeight;
         dialogConfig.minWidth = dlgMinWidth;
         dialogConfig.disableClose = false;
-        dialogConfig.autoFocus = false;       
+        dialogConfig.autoFocus = false;
         dialogConfig.data = data;
-        dialogConfig.panelClass = ['pepperi-dialog', panelClass];       
+        dialogConfig.panelClass = ['pepperi-dialog', panelClass];
     }
 
     getMaintenance(func: Function) {
@@ -243,7 +260,7 @@ export class AppService {
         this.http.postPapiApiCall('/distributor', body).subscribe(res => successFunc(res));
     }
 
-    async updateAllAddons(addonUUID, successFunc: Function) {       
+    async updateAllAddons(addonUUID, successFunc: Function) {
         await this.http.postPapiApiCall(`/addons/api/${addonUUID}/api/update_alladdons`, { "InitiateDistributor": true }).subscribe(res => successFunc(res));
     }
 

@@ -1,34 +1,3 @@
-<!-- <div class="listContainer">
-    <div class="rowHeader pep-spacing-element-negative">
-        <p class="pep-spacing-element body-sm pull-left flip"
-            [innerHtml]="(apiEndpoint === 'addons' ? 'AddonManager_addonSecTitle' : 'AddonManager_permissionSecTitle') | translate">
-        </p>
-    </div>
-    <div class="rowBody">
-        <pep-top-bar [title] ="topBarTitle | translate" [inline]="true">
-            <pep-list-actions *ngIf="listActions?.length"  (actionClick)="onActionClicked($event)" [actions]="listActions" [sizeType]="'md'"></pep-list-actions>
-            <pep-list-chooser *ngIf="apiEndpoint === 'permissions'" [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
-            <div header-end-content>
-                <pep-button *ngIf="apiEndpoint === 'permissions'" class="pep-spacing-element" iconName="number_plus" styleType="strong" sizeType="md" (click)="openPermissionsDialog()">
-                </pep-button>
-            </div>
-        </pep-top-bar>
-        <div #pepperiListCont class="list-container">
-            <pep-list #pepList
-            [disabled]="true"
-            [supportSorting]="false"
-            [supportResizing]="false"
-            [selectionTypeForActions]="'single'"
-            [noDataFoundMsg]="noDataMsg | translate"
-            [parentScroll]="pepperiListCont"
-            [viewType] = "'table'"
-            (fieldClick)="onCustomizeFieldClick($event)"
-            (selectedItemsChange)="selectedRowsChanged($event)" >
-            </pep-list>
-        </div> 
-       
-    </div>
-</div>-->
 <div class="listContainer">
     <pep-generic-list #glist [dataSource]="dataSource" [actions]="actions" [inline]="false" [showTopBar]="true"
         [showSearch]="true" [supportSorting]="true" [uuidMapping]="'UUID'" [pager]="pager"

@@ -13,7 +13,7 @@ export class KeyValuePair<T> {
     Value: T;
 }
 
-export class SystemData{
+export class SystemData {
     Versions?: string[];
     EnableKey?: string;
     AngularPlugin?: boolean;
@@ -38,7 +38,7 @@ export class Addon {
     // ModificationDate: string;
     Hidden: boolean;
     Type: number;
-    constructor(uuid = '', name: any = '', description = '', systemData =  {Versions: []}) {
+    constructor(uuid = '', name: any = '', description = '', systemData = { Versions: [] }) {
         this.UUID = uuid;
         this.Name = name;
         this.Description = description;
@@ -61,7 +61,7 @@ export class InstalledAddon {
     LatestPhased?: any;
     PhasedType?: ComparisionType;
     HasVersions?: any;
-    constructor(uuid = '', addon: Addon = null, additionalData = '{}', systemData =  {Versions: []}) {
+    constructor(uuid = '', addon: Addon = null, additionalData = '{}', systemData = { Versions: [] }) {
         this.UUID = uuid;
         this.Addon = addon;
         this.AdditionalData = additionalData;
@@ -100,3 +100,17 @@ export interface DataRowField {
     OptionalValues: any;
 
 }
+
+export interface BulkUpgradeResponse {
+    status: number;
+    generalError?: string;
+    addonErrorList?: AddonError[];
+}
+
+export interface AddonError {
+    uuid: string;
+    name: string;
+    message: string;
+}
+
+

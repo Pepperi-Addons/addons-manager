@@ -1,0 +1,30 @@
+<div id="upgrade-all-dialog" class="dialog">
+    <pep-dialog [title]="'Addonmanager_Action_UpgradeAll' | translate" [showClose]="true" (close)="onDialogClose()">
+        <ng-container pep-dialog-content>
+            <div *ngIf="status === 0">
+                {{ 'UpgradeAll_Dialog.OperationSuccess' | translate }}
+            </div>
+            <ng-container *ngIf="status === 1">
+                <div class="upgrade-all-error-title">
+                    {{ 'UpgradeAll_Dialog.OperationFailed' | translate }}:
+                </div>
+                <ng-container *ngIf="addonErrors.length">                   
+                    <ul class="error-item-container">
+                        <li *ngFor="let error of addonErrors" class="error-item">
+                            {{ 'UpgradeAll_Dialog.Addon_Error.Item' | translate }}: {{ error.name }} <br/>
+                            {{ 'UpgradeAll_Dialog.Addon_Error.Label' | translate }}: {{ error.message }}    
+                        </li>
+                    </ul>
+                </ng-container>
+                <ng-container *ngIf="generalError">                                       
+                    <div>
+                        {{ generalError }}
+                    </div>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+        <ng-container pep-dialog-actions class="pepperi-border-top">
+            <pep-button [value]="'UpgradeAll_Dialog.Ok_Button' | translate" [mat-dialog-close]="outputData"></pep-button>
+        </ng-container>
+    </pep-dialog>
+</div>

@@ -1,0 +1,20 @@
+@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/variables';
+@use '@pepperi-addons/ngx-lib/src/core/style/abstracts/functions';
+
+
+.upgrade-all-error-title { 
+    margin-bottom: variables.$spacing-lg;
+}
+
+.error-item-container {
+    li.error-item:not(:last-child) {
+        margin-bottom: variables.$spacing-sm;
+    }
+}
+
+.error-item {    
+    background: functions.get-pep-color(color-weak, color-tran-30) !important;
+    padding: variables.$spacing-sm;
+    border-radius: variables.$spacing-xs;
+   
+}

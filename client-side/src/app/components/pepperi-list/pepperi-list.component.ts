@@ -16,13 +16,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { AppService } from '../../app.service';
 import {
   AddonsSearch, InstalledAddon, DataRowField,
-  Addon, AddonType
+  Addon, AddonType, BulkUpgradeResponse, AddonError
 } from '../../app.model';
 import {
   PermissionObjectContextProfile, PermissionsDialogComponent, AddonsPermissions,
   PermissionObjectField, PermissionObjectContext
 } from '../dialogs/permissions-dialog/permissions.component';
-import { EditDialogComponent } from '../dialogs/edit-dialog/edit-dialog.component';
+import { UpgradeAllDialogComponent } from '../dialogs/upgrade-all-dialog/upgrade-all-dialog.component';
 import { ChangeVersionDialogComponent } from '../dialogs/change-version-dialog/change-version-dialog.component';
 import {
   IPepGenericListDataSource,
@@ -375,7 +375,10 @@ export class PepperiListContComponent {
           phasedType = additionalValue.PhasedType;
           isInstalled = additionalValue.Installed;
           if (isInstalled && phasedType === ComparisionType.BiggerThan) {
-            upgradeItems.push(rowData);
+            upgradeItems.push({
+              Data: rowData,
+              DependencyErrorCount: 0
+            });
           }
         }
       }
@@ -403,8 +406,8 @@ export class PepperiListContComponent {
             }
             if (params?.searchString) {
               res = res.filter((addon: InstalledAddon) =>
-                addon.Addon.Name?.includes(params.searchString) ||
-                addon.Addon.Description?.includes(params.searchString)
+                addon.Addon.Name?.toLowerCase().includes(params.searchString.toLowerCase()) ||
+                addon.Addon.Description?.toLowerCase().includes(params.searchString.toLowerCase())
               );
             }
             res.forEach((addon: InstalledAddon) => {
@@ -698,58 +701,89 @@ export class PepperiListContComponent {
     });
     const dialogConfig = this.dialog.getDialogConfig({ minWidth: '30rem' }, 'regular');
     this.dialog.openDefaultDialog(dialogData, dialogConfig).afterClosed().subscribe(async performAction => {
-      if (performAction) {
-        const bulkUpgradeResult: any = await this.executeBulkUpgrade(rowsData);
-        const content = bulkUpgradeResult?.Status === 0 ? `${this.translate.instant('Addon_SuccessfulOperation')}<br><br><br><br>`
-          : `${this.translate.instant('Addon_FailedOperation')}<span>${bulkUpgradeResult?.ErrorMessage}</span><br><br>`;
-        const data = new PepDialogData({ content });
-        this.dialog.openDefaultDialog(data, dialogConfig).afterClosed().subscribe(() => {
+      if (performAction) {       
+        const bulkUpgradeResult: any = await this.executeBulkUpgrade(rowsData);       
+        const data = new PepDialogData({ content: { 
+          status: bulkUpgradeResult?.status, 
+          generalError: bulkUpgradeResult?.generalError,
+          addonErrorList: bulkUpgradeResult?.addonErrorList
+        } });
+        const dialogRef = this.dialog.openDialog(UpgradeAllDialogComponent, data, dialogConfig);
+        dialogRef.afterClosed().subscribe(() => {
           this.pluginService.clearAddonList();
           this.loadAddons();
-        })
+        });       
       }
     });
   }
 
-  private async executeBulkUpgrade(rowsData: any[]) {
-    let upgradeResponse: { Status: number, ErrorMessage?: string } = { Status: 0 };
+  private async executeBulkUpgrade(rowsData: any[]): Promise<BulkUpgradeResponse> {    
+    let bulkUpgradeResponse: BulkUpgradeResponse = { status: 0, addonErrorList: [] };
     let dependentAddons: any[] = [];
 
     return new Promise((resolve, reject) => {
       this.pluginService.bulkUpgrade(rowsData).subscribe(async addons => {
         if (addons?.length) {
+          let addonErrorList: AddonError[] = [];
           addons.forEach((addon: any) => {
             if (addon?.Status?.Name && addon.AuditInfo?.ErrorMessage) {
               if (addon.Status.Name === 'Failure') {
                 if (addon.AuditInfo.ErrorMessage.includes('dependencies')) {
-                  const dependentAddon = rowsData.find(item => item.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
+                  const dependentAddon = rowsData.find(item => item.Data.Fields[0].AdditionalValue === addon.AuditInfo.Addon?.UUID);
                   if (dependentAddon) {
-                    dependentAddons.push(dependentAddon);
+                    if (dependentAddon.DependencyErrorCount < 3) { //up to 3 tries
+                      dependentAddon.DependencyErrorCount++;
+                      dependentAddons.push(dependentAddon);
+                    } else {
+                      addonErrorList.push({
+                        uuid: addon.AuditInfo.Addon.UUID,   
+                        name: addon.AuditInfo.Addon.Name,                     
+                        message: this.translate.instant('UpgradeAll_Dialog.Addon_Error.Message')
+                      });                     
+                    }
                   }
                 } else {
-                  upgradeResponse.Status = 1;
-                  upgradeResponse.ErrorMessage = addon.AuditInfo.ErrorMessage;
+                  addonErrorList.push({
+                    uuid: addon.AuditInfo.Addon.UUID, 
+                    name: addon.AuditInfo.Addon.Name,
+                    message: addon.AuditInfo.ErrorMessage
+                  });                 
                 }
               }
             }
           })
           if (dependentAddons.length) {
-            const bulkUpgradeRes: any = await this.executeBulkUpgrade(dependentAddons);
-            if (bulkUpgradeRes?.Status === 1) {
-              upgradeResponse.Status = 1;
-              upgradeResponse.ErrorMessage = bulkUpgradeRes.ErrorMessage;
-            }
+            const nestedBulkUpgradeRes: BulkUpgradeResponse = await this.executeBulkUpgrade(dependentAddons);
+            if (nestedBulkUpgradeRes.status === 1) {
+              // merge errors
+              if (nestedBulkUpgradeRes.generalError) {
+                bulkUpgradeResponse.generalError = nestedBulkUpgradeRes.generalError; 
+              }
+              if (nestedBulkUpgradeRes.addonErrorList.length) {
+                bulkUpgradeResponse.addonErrorList = [
+                  ...bulkUpgradeResponse.addonErrorList,
+                  ...nestedBulkUpgradeRes.addonErrorList
+                ]
+              }
+            }            
           }
-          return resolve(upgradeResponse);
+          if (addonErrorList.length) {
+            bulkUpgradeResponse.status = 1;
+            bulkUpgradeResponse.addonErrorList = [
+              ...bulkUpgradeResponse.addonErrorList, 
+              ...addonErrorList
+            ];
+          }
+          return resolve(bulkUpgradeResponse);
         } else {
-          upgradeResponse.Status = 1;
-          upgradeResponse.ErrorMessage = this.translate.instant('AddonsManager_GeneralError');
-          return resolve(upgradeResponse);
+          bulkUpgradeResponse.status = 1;
+          bulkUpgradeResponse.generalError = this.translate.instant('AddonsManager_GeneralError');;       
+          return resolve(bulkUpgradeResponse);
         }
       }, error => {
-        upgradeResponse.Status = 1;
-        upgradeResponse.ErrorMessage = error;
-        return reject(upgradeResponse);
+        bulkUpgradeResponse.status = 1;
+        bulkUpgradeResponse.generalError = error;      
+        return reject(bulkUpgradeResponse);
       })
     })
   }
@@ -823,7 +857,7 @@ export class PepperiListContComponent {
           window.clearInterval(interval);
 
         }
-      })      
+      })
     }, 2000);
 
   }
@@ -879,7 +913,7 @@ export class PepperiListContComponent {
             const currentVersion = versions.find(version => version.Version === currentVersionId);
             const actionName = versionToChange && currentVersion ?
               (Semver.lte(versionToChange.Version, currentVersion.Version) ? 'downgrade' : 'upgrade') : null;
-            if (versionToChange && actionName) {              
+            if (versionToChange && actionName) {
               this.pluginService.editAddon(actionName, rowData.Fields[0].AdditionalValue, dialogResult.version).subscribe(res => {
                 if (res) {
                   this.pollExecution(
