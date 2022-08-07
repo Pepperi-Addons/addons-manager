@@ -8,10 +8,6 @@ import { tap, share, finalize, catchError, mergeMap, switchMap, repeatWhen, take
 
 import { ComparisionType } from './common/enums/comparision-type.enum';
 
-class Customer {
-
-}
-
 @Injectable({
     providedIn: 'root'
 })
@@ -21,22 +17,7 @@ export class AppService {
     private _addonsList$: Observable<any>;
     private _permissionList: any[] = [];
     private _permissionList$: Observable<any>;
-    //TEMP
-
-    private _subject = new Subject<Customer>();
-    readonly customer$ = this._subject.asObservable();
-
-    getCustomer(customerId: string) {
-        return this.http.getPapiApiCall(`/api/customer/${customerId}`)
-            .pipe(
-                tap((res: Customer) => {
-                    this._subject.next(res);
-                })
-            )
-    }
-
-
-    //TEMP
+   
     constructor(
         private http: PepHttpService,
         private session: PepSessionService,
