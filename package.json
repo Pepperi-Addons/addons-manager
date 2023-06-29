@@ -19,7 +19,7 @@
   "dependencies": {
     "-": "0.0.1",
     "@pepperi-addons/scripts": "^2.0.4",
-    "concurrently": "^5.3.0",
+    "concurrently": "^8.2.0",
     "g": "^2.0.1"
   }
 }
