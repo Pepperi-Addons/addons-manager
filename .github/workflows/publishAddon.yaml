@@ -3,9 +3,8 @@ name: PublishAddon
 on:
   push:
     branches:
-      # - main
-      # - master
-      - 'release/**'
+      - main
+      - master
 
 jobs:
   publish-addon:
