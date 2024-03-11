@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"build": "cd ./client-side && npm run build && cd .. && cd ./server-side && npm run build && cd ..",
-		"init": "cd ./client-side && npm install --force && cd .. && cd ./server-side && npm install && cd ..",
-		"publish-addon": "npm run build && publish-addon",
-		"pub-addon": "publish-addon"
-	},
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd ./client-side && npm run build && cd .. && cd ./server-side && npm run build && cd ..",
+    "init": "cd ./client-side && npm install --force && cd .. && cd ./server-side && npm install && cd ..",
+    "publish-addon": "npm run build && publish-addon",
+    "pub-addon": "publish-addon"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
