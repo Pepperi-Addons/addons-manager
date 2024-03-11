@@ -25,11 +25,12 @@ import { ChangeVersionDialogComponent } from './components/dialogs/change-versio
 import { EditDialogComponent } from './components/dialogs/edit-dialog/edit-dialog.component';
 import { PermissionsDialogComponent } from './components/dialogs/permissions-dialog/permissions.component';
 import { UpgradeAllDialogComponent } from './components/dialogs/upgrade-all-dialog/upgrade-all-dialog.component';
-import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.component';
+// import { PepperiTableComponent } from './components/pepperi-list/pepperi-table.component';
 // import { BroadcastService } from '@pepperi-addons/ngx-broadcast';
 import { AppService } from './app.service';
 import { TranslateLoader, TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core';
 import { PepAddonService } from '@pepperi-addons/ngx-lib';
+import { PepRemoteLoaderModule } from '@pepperi-addons/ngx-lib/remote-loader';
 
 import { config } from './addon.config';
 
@@ -42,7 +43,7 @@ import { config } from './addon.config';
         ChangeVersionDialogComponent,
         PermissionsDialogComponent,
         UpgradeAllDialogComponent,
-        PepperiTableComponent
+        // PepperiTableComponent
     ],
     imports: [
         BrowserModule,
@@ -52,6 +53,7 @@ import { config } from './addon.config';
         FormsModule,
         ReactiveFormsModule,
         PepGenericListModule,
+        PepRemoteLoaderModule,
         AppRoutingModule,
         TranslateModule.forRoot({
             loader: {

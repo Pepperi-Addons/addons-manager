@@ -30,12 +30,11 @@ export class AppComponent  {
       private dialog: PepDialogService
       //@Inject(PEP_BROADCAST_SERVICE) private broadcastService: BroadcastService
     ) {
-      debugger;
-      let userLang = 'en';
-      translate.setDefaultLang(userLang);
-      const languages = translate.getBrowserLang().split('-')
-      userLang = languages[0]; // use navigator lang if available
-      translate.use(userLang);           
+      // let userLang = 'en';
+      // translate.setDefaultLang(userLang);
+      // const languages = translate.getBrowserLang().split('-')
+      // userLang = languages[0]; // use navigator lang if available
+      // translate.use(userLang);           
      
       // singleSpaPropsSubject.subscribe(props => {
       //     this.addonData = props['addon'];

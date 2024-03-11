@@ -39,6 +39,7 @@
 	"AddonsManager_ChooseVersion": "Please select a version",
 	"AddonsManager_GeneralError": "General Error",
 	"Addonmanager_Action_Install": "Install",
+	"Addonmanager_Action_AuditLog": "Audit Log",
 	"Addonmanager_Action_Uninstall": "Uninstall",
 	"Addonmanager_Action_Upgrade": "Upgrade",
 	"Addonmanager_Action_UpgradeAll": "Upgrade All",
