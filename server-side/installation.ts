@@ -1,22 +1,39 @@
 import MyService from './my.service';
 import { Client, Request } from '@pepperi-addons/debug-server';
-import { Addon, AddonVersion } from '@pepperi-addons/papi-sdk';
-// add functions here
 
-export async function install(client: Client) {
-  // client.addLogEntry("Info", "Start Installation");
-  const service = new MyService(client);
-  const addon = {  Editors: [{ParentPackageName: 'Configuration',
-  PackageName: 'editor',
-  Description: 'Addon Manager'}],
-  UUID: '',
-  Version: ''};
-  const result = await service.installAddon(addon);
+export async function install(client: Client, request: Request) {
+    try {
+        const service = new MyService(client);
+        await service.createRelations();
 
-  // addEditors.emit();
+        // const addon = {  
+        //     Editors: [
+        //         {
+        //             ParentPackageName: 'Configuration',
+        //             PackageName: 'editor',
+        //             Description: 'Addon Manager'
+        //         }
+        //     ],
+        //     UUID: '',
+        //     Version: ''
+        // };
+        // const result = await service.installAddon(addon);
+    } catch (err) {
+        throw new Error(`Failed to create ADAL Tables. error - ${err}`);
+    }
 
-  // client.addLogEntry("Info", `Response from addons ${addons}`);
-  return result;
+    // return result;
+    return { success: true, resultObject: {} };
 }
 
+export async function uninstall(client: Client, request: Request) {
+    return {success: true, resultObject: {}};
+}
 
+export async function upgrade(client: Client, request: Request) {
+    return {success: true, resultObject: {}};
+}
+
+export async function downgrade(client: Client, request: Request) {
+    return {success: true, resultObject: {}};
+}

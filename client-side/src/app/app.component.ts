@@ -2,7 +2,7 @@ import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/cor
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { PepDialogService } from '@pepperi-addons/ngx-lib/dialog';
-import { singleSpaPropsSubject } from 'src/single-spa/single-spa-props';
+// import { singleSpaPropsSubject } from 'src/single-spa/single-spa-props';
 import { AppService } from './app.service';
 //import { PEP_BROADCAST_SERVICE, BroadcastService } from '@pepperi-addons/ngx-broadcast';
 
@@ -30,16 +30,17 @@ export class AppComponent  {
       private dialog: PepDialogService
       //@Inject(PEP_BROADCAST_SERVICE) private broadcastService: BroadcastService
     ) {
+      debugger;
       let userLang = 'en';
       translate.setDefaultLang(userLang);
       const languages = translate.getBrowserLang().split('-')
       userLang = languages[0]; // use navigator lang if available
       translate.use(userLang);           
      
-      singleSpaPropsSubject.subscribe(props => {
-          this.addonData = props['addon'];
-          this.route = props['route'] ?  props['route'] : activatedRoute.snapshot;
-      });
+      // singleSpaPropsSubject.subscribe(props => {
+      //     this.addonData = props['addon'];
+      //     this.route = props['route'] ?  props['route'] : activatedRoute.snapshot;
+      // });
 
       // this.broadcastService.publish({ type: 'RELOAD_SETTINGS_BAR', payload: null});
     }

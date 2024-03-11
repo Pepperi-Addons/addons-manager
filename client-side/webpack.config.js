@@ -1,8 +1,24 @@
-const singleSpaAngularWebpack = require('single-spa-angular/lib/webpack').default;
+const { shareAll, share, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
+// file_name should be lowercase and if it more then one word put '_' between them,
+const addonConfig = require('../addon.config.json');
+// const filename = `file_${addonConfig.AddonUUID}`;
+const filename = `page_builder`;
 
-module.exports = (config, options) => {
-    const singleSpaWebpackConfig = singleSpaAngularWebpack(config, options);
+const webpackConfig = withModuleFederationPlugin({
+    name: filename,
+    filename: `${filename}.js`,
+    exposes: {
+        './WebComponents': './src/bootstrap.ts',
+    },
+    shared: {
+        ...shareAll({ strictVersion: true, requiredVersion: 'auto' }),
+    }
+});
 
-    // Feel free to modify this webpack config however you'd like to
-    return singleSpaWebpackConfig;
+module.exports = {
+    ...webpackConfig,
+    output: {
+        ...webpackConfig.output,
+        uniqueName: filename
+    },
 };

@@ -137,13 +137,7 @@ import { PepTopBarModule } from '@pepperi-addons/ngx-lib/top-bar';
         CommonModule,
         PepNgxLibModule,
         pepperiComponentsModules,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: PepAddonService.createDefaultMultiTranslateLoader,
-                deps: [HttpClient, PepFileService, PepAddonService]
-            }
-        })
+        TranslateModule.forChild()
     ],
     exports: [
         PepNgxLibModule,
