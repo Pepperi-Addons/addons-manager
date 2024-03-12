@@ -731,12 +731,13 @@ export class PepperiListContComponent {
     }
 
     private openAuditLogDialog(addonUUID: string) {
+        const coreResourcesAddonUUID = '00000000-0000-0000-0000-00000000c07e';
         const dialogRef = this.addonBlockLoaderService.loadAddonBlockInDialog({
             container: this.viewContainerRef,
             name: 'AuditDataLog',
             hostObject: {
-                "AddonUUID": addonUUID,
-                "ObjectKey": "",
+                "AddonUUID": coreResourcesAddonUUID,
+                "ObjectKey": addonUUID,
                 "Resource": "installed_addons",
             },
             hostEventsCallback: (event) => { this.onHostEvents(event, dialogRef); }
