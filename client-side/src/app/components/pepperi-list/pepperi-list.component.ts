@@ -737,7 +737,7 @@ export class PepperiListContComponent {
             hostObject: {
                 "AddonUUID": addonUUID,
                 "ObjectKey": "",
-                "Resource": ""
+                "Resource": "installed_addons",
             },
             hostEventsCallback: (event) => { this.onHostEvents(event, dialogRef); }
         });

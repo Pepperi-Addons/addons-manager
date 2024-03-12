@@ -1,4 +1,4 @@
-<pep-page-layout [addPadding]="false">
+<pep-page-layout [addPadding]="true">
     <ng-container pep-top-area>
         <pep-top-bar [title]="'AddonManager' | translate"></pep-top-bar>
     </ng-container>
@@ -9,7 +9,7 @@
                 <ng-template matTabContent>
                     <pep-list-cont [apiEndpoint]="'addons'" [addonData]="addonData"
                         (refreshSettingsTree)="refreshSettingsTree($event)"
-                        [isSupportUser]="route?.queryParams?.support_user"></pep-list-cont>
+                        [isSupportUser]="isSupportUser"></pep-list-cont>
                 </ng-template>
             </mat-tab>
 
@@ -23,7 +23,7 @@
             <!--mat-tab *ngIf="route?.queryParams?.support_user" label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}"-->
             <mat-tab label="{{ 'AddonsManager_Maintenance_Tab_title' | translate}}">
                 <ng-template matTabContent>
-                    <settings-cont [isSupportUser]="route?.queryParams?.support_user"></settings-cont>
+                    <settings-cont [isSupportUser]="isSupportUser"></settings-cont>
                 </ng-template>
             </mat-tab>
         </mat-tab-group>

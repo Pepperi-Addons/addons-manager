@@ -108,9 +108,9 @@ export class _maintenance {
     ) {
   
         //let userLang = 'en';
-        translate.setDefaultLang(this.userLang);
-        this.userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
-        translate.use(this.userLang);
+        // translate.setDefaultLang(this.userLang);
+        // this.userLang = translate.getBrowserLang().split('-')[0]; // use navigator lang if available
+        // translate.use(this.userLang);
 
         this.pluginService.getMaintenance(res => {
 

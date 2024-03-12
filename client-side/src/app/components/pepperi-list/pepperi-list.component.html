@@ -1,6 +1,6 @@
-<div class="listContainer">
+<!-- <div class="listContainer"> -->
     <pep-generic-list #glist [dataSource]="dataSource" [actions]="actions" [inline]="false" [showTopBar]="true"
-        [showSearch]="true" [supportSorting]="true" [uuidMapping]="'UUID'" [pager]="pager"
+        [showSearch]="true" [supportSorting]="true" [uuidMapping]="'UUID'" [pager]="pager" [addPadding]="true"
         [title]="topBarTitle | translate" [description]="listDescription | translate">
         <ng-container *ngIf="apiEndpoint === 'permissions'" right-buttons>
             <pep-button class="pep-spacing-element" iconName="number_plus" styleType="strong" sizeType="md"
@@ -11,5 +11,5 @@
             <pep-list-chooser [options]="profilesList" (change)="profileListChanged($event)"></pep-list-chooser>
         </ng-container>
     </pep-generic-list>
-</div>
+<!-- </div> -->
 
