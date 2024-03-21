@@ -655,18 +655,19 @@ export class PepperiListContComponent {
   initPermissionDataRowField(permission: any, key): PepFieldData {
     const str = key === 'FieldID' ? permission.FieldID : permission.Title;
     const value = str && str.split(';').length ? str.split(';') : ['', ''];
+
     const dataRowField: PepFieldData = {
       ApiName: key,
       Title: key === 'FieldID' ? this.translate.instant('Addon') : this.translate.instant('Editor'),
       XAlignment: 1,
-      FormattedValue: '',//key === 'FieldID' ? value[1] : value[2],
+      FormattedValue: key === 'FieldID' ? value[0] : value[1],
       Value: key === 'FieldID' ? value[1] : value[2],
       ColumnWidth: 10,
       AdditionalValue: '',
       OptionalValues: [],
       FieldType: FIELD_TYPE.TextBox,
       ReadOnly: true,
-      Enabled: false
+      Enabled: false,
     };
     return dataRowField;
   }
@@ -802,13 +803,13 @@ export class PepperiListContComponent {
   }
 
   deletePermission(rowData) {
-    const uuid = rowData.Fields[0].Value;
-    const addonName = rowData.Fields[0].FormattedValue;
+    const uuid = rowData.Fields[0].FormattedValue;
+    const addonName = rowData.Fields[0].Value;
     const editorName = rowData.Fields[1].FormattedValue;
     const editorPack = rowData.Fields[1].Value;
 
     const fieldID = uuid + ';' + addonName;
-    const title = uuid + ';' + editorPack + ';' + editorName;
+    const title = uuid + ';' + editorName + ';' + editorPack;
 
     const fieldsArr = this.existPermissions.filter(permission => permission.FieldID !== fieldID ||
       permission.Title !== title);
