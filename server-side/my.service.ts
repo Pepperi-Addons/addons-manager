@@ -162,7 +162,7 @@ class MyService {
         const settingsName = 'Settings';
         const name = 'Configuration';
 
-        const settingsBlockRelation: Relation = {
+        const settingsBlockRelation: Relation = { 
             RelationName: "SettingsBlock",
             GroupName: name,
             SlugName: 'addons_manager',
