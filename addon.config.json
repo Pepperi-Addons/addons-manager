@@ -5,7 +5,8 @@
   "WebappBaseUrl": "https://app.sandbox.pepperi.com",
   "DefaultEditor": "addons_manager",
   "Endpoints": [
-    "api.ts"
+    "api.ts",
+    "installation.ts"
   ],
   "Editors": [
     "main"
