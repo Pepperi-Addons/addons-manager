@@ -1,25 +1,20 @@
-# Rich text
+# Addon manager
 
 ## High Level
-- The Rich text addon enables users to input different types of content such as text with different styles, images, videos, and so on.
-- The Rich text addon has an editor with a simple interface.
-- Rich text often have text, styles, images and more. 
-- Rich text can run onLoad [flows](https://github.com/Pepperi-Addons/user-defined-flows). the flow can run configured script/navigate & more.
-- The component is an extension of the [quill editor](https://www.npmjs.com/package/ngx-quill).
+- The Addon manager gives the possibility to track versions of addons, install new ones, upgrade or downgrade versions, view logs of the each addon, set permissions to Reps and Buyers on the addons and to set auto update time for the addons.
 
-### Richtext editor
-- A Rich text editor allows you to easily view or edit your rich text preview.
-- The Rich text editor allows you to:
-    - add content via HTML, text or from an HTML file.
-    - Set height, width, number of columns & padding.
-    - Configure onLoad/onChange [flow](https://github.com/Pepperi-Addons/user-defined-flows)
+    ### Addons Tab:
+    - Addons: addons list with Name, Description, Version and last update date.
+    - Permissions: Define which settings editors can be executed according to the profile. there is no need to define the Admin profile, Admin can run all the settings editors
+    - Settings: set addons auto update & freeze end date & time
 
 ---
 
 ## Releases
 | Version | Description | Migration |
 |-------- |------------ |---------- |
-| 1.3  | Padding component support added |  |
+| 2.0.xx  | addon manage last phased version |  |
+| 2.1.xx | KDs files added | |
 
 ---
 
@@ -32,36 +27,44 @@ After a Pull Request is merged into a release branch, avilable version will be p
 #### Client side: 
 To debug your addon with developer toolbar (chrome or any other browser dev tool).
 Open terminal --> change to client-side --> Start your addon with npm start.
-Open your browser at: https://app.pepperi.com/settings_block/16d2052b-55b7-43b5-9d3b-a2f9d9950d59/pages/[page UUID]?devBlocks=[["BlockComponent","http://localhost:4401/file_3864cd44-b388-41c5-8af9-ec200f72b3f3.js"]]
-
+Open your browser at: https://app.pepperi.com/settings_block/bd629d5f-a7b4-4d03-9e7c-67865a6d82a9/addons_manager?dev=true
 Open the browser inspector to make sure that the editor file is served locally
 #### Server side: 
 To debug your addon with `Visual Studio Code`, set the RUN mode to 'Launch API Server', press `F5` or `Run->Start Debugging`.
 You can then checkout your *API* at http://localhost:4401/api/foo. Be sure to supply a JWT for it to work.
 
 #### CPI side:
-To debug the CPI side with `Visual Studio Code`, open the PEPPERI application (simulator), login to the user that you want to debug, add 'debugger' at the cpi code,  set the RUN mode to 'Launch CPINode debugger Server', press `F5` or `Run->Start Debugging`. 
+There is no CPI side calls.
 
 ---
 
 ## Testing
-
 This addon does not require any tests (so far).
 
 ---
 
 ## Dependencies
-
 | Addon | Usage |
 |-------- |------------ |
-| [pages](https://github.com/Pepperi-Addons/page-builder) | Pages addon is needed for show the addon on a page on run time or for editing in the editing mode |
-| [cpi_node](https://https://github.com/Pepperi-Addons/cpi-node) | cpi node is needed to deal with the cpi side code |
-| [pepperi_pack](https://https://github.com/Pepperi-Addons/pepperi-pack) | |
+| [papi](https://apidesign.pepperi.com/papi-index/papi-functions) | A Javascript/Typescript SDK for working with the Pepperi SDK. |
+| [data_views](https://apidesign.pepperi.com/meta-data/data-views) | for getting the addons data views |
+| [Webapp]() | the addon get versions and set updates from the webapp platform |
 ---
 
 ## APIs
 
-There is no APIs call for this block
+<!-- [Provide links to API documentation] -->
+There is no hosted API on the [Pepperi API Design Center](https://apidesign.pepperi.com/) about this addon.
+
+- [addons (Get)](https://api.pepperi.com/v1.0/addons/): return list of addons.
+- [addon_versions (Get)](https://apidesign.pepperi.com/var-api/get-all-addons-versions/get-single-addon-version): Return addon version by uuid.
+- updates (Get)]: return list of addons that needs an update.
+- [update_alladdons (Post)](https://apidesign.pepperi.com/distributor/upgrade-all-installed-addons): Update all installed addons.
+- [install (Post)](https://apidesign.pepperi.com/add-ons/addons-installation/install-add-on-to-distributor): Install addon by addon UUID.
+- [install_version (Post)](https://apidesign.pepperi.com/add-ons/addons-installation/install-add-on-to-distributor): Install  specific add-on version by addon UUID.
+- [uninstall (Post)](https://apidesign.pepperi.com/add-ons/addons-installation/uninstall-addon-from-distributor): Uninstall addon by addon UUID.
+- [upgrade (Post)](https://apidesign.pepperi.com/add-ons/addons-installation/upgrade-installed-add-on): Upgrade addon by addon UUID and a version.
+- [downgrade (Post)](https://apidesign.pepperi.com/add-ons/addons-installation/downgrade-installed-add-on): Downgrade addon by addon UUID and a version.
 
 [Postman Collection](./addon.postman_collection.json)
 
@@ -79,7 +82,8 @@ see: [Architecture](./architecture.md)
 
 ## Known issues
 
-- [provide any information regarding known issues (bugs, qwerks etc.) in the addon] 
+- Need to add this addon to the pepperi API design data (https://apidesign.pepperi.com/)
+- When using the '?support_user=true' in the url , we present hard coded menu with change addon version & audit log insted of adding those options to the regular menu.
 
 ---
 
@@ -89,19 +93,9 @@ see: [Architecture](./architecture.md)
 
 ## Usage
 - Install the addon & all his dependencies.
-- Navigate to Settings --> Pages --> Page builder and choose your page.
-- Configures a block typed "Rich text" (drag it to the page) on the page editor.
-- Edit, Save/Publish the page.
-- Configure a slug for it -> sync.
-- Navigates to the slug that has finished to configure.
-
-## Block
-- The block (Rich text) gets the UI from the object who configured with the editor on the edit mode.
-## Editor
-#### Managing the rich text view:
-The editor give the ability to create a Rich text content by:
--  Organizing your view as you want. With many UI options such as:
-    - Add content via HTML (text), text or from an HTML file.
-    - Set height, width, number of columns & padding.
-    - Configure onLoad/onChange [flow](https://github.com/Pepperi-Addons/user-defined-flows).
+- Navigate to Settings --> Configuration --> Addon manager.
+- To see the audit log or to Uninstall an addon: Select an addon and choose from the menu.
+- to change addon version (upgrade/downgrade) add the ?support_user=true to the url.
+- To set permission move to Permissions tab.
+- To set auto addon Update: move to settings Tab.
 
