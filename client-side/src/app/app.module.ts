@@ -33,6 +33,7 @@ import { PepAddonService } from '@pepperi-addons/ngx-lib';
 import { PepRemoteLoaderModule } from '@pepperi-addons/ngx-lib/remote-loader';
 
 import { config } from './addon.config';
+import { PepSelectModule } from '@pepperi-addons/ngx-lib/select';
 
 @NgModule({
     declarations: [
@@ -48,6 +49,7 @@ import { config } from './addon.config';
     imports: [
         BrowserModule,
         BrowserAnimationsModule,
+        PepSelectModule,
         PepUIModule,
         MaterialModule,
         FormsModule,
