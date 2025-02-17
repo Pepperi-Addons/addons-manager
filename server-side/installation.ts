@@ -31,7 +31,13 @@ export async function uninstall(client: Client, request: Request) {
 }
 
 export async function upgrade(client: Client, request: Request) {
-    return {success: true, resultObject: {}};
+    try {
+        const service = new MyService(client);
+        await service.createRelations();
+    } catch (err) {
+        throw new Error(`Failed to create ADAL Tables. error - ${err}`);
+    }
+    return { success: true, resultObject: {} };
 }
 
 export async function downgrade(client: Client, request: Request) {

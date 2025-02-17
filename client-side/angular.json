@@ -45,7 +45,7 @@
                             "src/styles.scss"
                         ],
                         "scripts": [],
-                        "commonChunk": false,
+                        "commonChunk": true,
                         "extraWebpackConfig": "./webpack.config.js"
                     },
                     "configurations": {
@@ -60,7 +60,7 @@
                         "production": {
                             "optimization": true,
                             "sourceMap": false,
-                            "namedChunks": false,
+                            "namedChunks": true,
                             "extractLicenses": true,
                             "vendorChunk": false,
                             "buildOptimizer": true,
@@ -95,8 +95,10 @@
             }
         }
     },
-    "defaultProject": "client-side",
     "cli": {
+        "cache": {
+            "enabled": false
+        },
         "analytics": false
     }
 }

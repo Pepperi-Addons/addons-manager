@@ -5,7 +5,7 @@
             <div style="padding: 0 .5rem;">
                 <p>{{'Current Version: ' + currentVersion}}</p>
                 <p>{{'AddonsManager_ChangeVersion_Body' | translate}}</p>
-                <pep-select [emptyOption]="false" [options]="options" (valueChange)="outputData.version = $event"></pep-select>
+                <pep-select [emptyOption]="false" [options]="options" [autoSortOptions]="false" (valueChange)="outputData.version = $event"></pep-select>
             </div>
         </ng-container>
         <ng-container pep-dialog-actions class="pepperi-border-top">
